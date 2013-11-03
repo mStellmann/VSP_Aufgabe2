@@ -1,13 +1,14 @@
 %%%-------------------------------------------------------------------
-%%% @author matthias
-%%% @copyright (C) 2013, <COMPANY>
+%%% @author Matthias Stellmann and Grzegorz Markiewicz
+%%% @copyright (C) 2013, HAW Hamburg
 %%% @doc
 %%%
+%%% @private
 %%% @end
-%%% Created : 26. Okt 2013 12:36
+%%% Created : 03. Nov 2013
 %%%-------------------------------------------------------------------
--module(main).
--author("matthias").
+-module(find).
+-author("StellmannMarkiewicz").
 
 %% API
 -export([]).
