@@ -10,22 +10,40 @@
 -module(controller).
 -author("StellmannMarkiewicz").
 
+%% API
+-export([main/6]).
 
-main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeList, OwnNodeName) ->
+main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, FindCount) ->
   receive
-    wakeup when OwnNodeState == sleeping -> sleeping:wakeup(OwnEdgeList, OwnNodeName),
-      main(found, OwnLevel, OwnFragName, OwnEdgeList, OwnNodeName);
-
-    {initiate, Level, FragName, NodeState, Edge} -> doSomething;
-    {test, Level, FragName, Edge} -> doSomething;
-    {accept, Edge} -> doSomething;
-    {reject, Edge} -> doSomething;
-    {report, Weight, Edge} -> doSomething;
-    {changeroot, Edge} -> doSomething;
-    {connect, Level, Edge} -> doSomething
+    wakeup when OwnNodeState == sleeping ->
+      wakeup(OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, FindCount);
+    {initiate, Level, FragName, NodeState, Edge} ->
+      doSomething;       %   TODO
+    {test, Level, FragName, Edge} ->
+      doSomething;     %   TODO
+    {accept, Edge} ->
+      doSomething;     %   TODO
+    {reject, Edge} ->
+      doSomething;      %   TODO
+    {report, Weight, Edge} ->
+      doSomething;        %   TODO
+    {changeroot, Edge} ->
+      doSomething;      %   TODO
+    {connect, Level, Edge} ->
+      case OwnNodeState == sleeping of
+        true ->
+          wakeup(OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, FindCount);
+        false ->
+          {ok, NewEdgeOrddict, NewFindCount} = nodeUtil:connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, Level, Edge, FindCount),
+          main(OwnNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, NewFindCount)
+      end
   end
-
 .
 
-%% API
--export([]).
+%% @private
+%% @doc
+%% Function deligates to the sleeping module
+wakeup(OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, FindCount) ->
+  {ok, NewEdgeOrddict} = sleeping:wakeup(OwnEdgeOrddict, OwnNodeName),
+  main(found, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, FindCount)
+.
