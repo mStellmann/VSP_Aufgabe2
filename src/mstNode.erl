@@ -19,7 +19,7 @@ start(Nodename) ->
   Filepath = lists:concat(["nodeconfigs/", Nodename, ".cfg"]),
   {ok, EdgeList} = file:consult(Filepath),
   EdgeOrddict = createEdgeOrddict(EdgeList, orddict:new()),
-  NodePID = erlang:spawn(fun() -> controller:main(sleeping, 0, 0, EdgeOrddict, Nodename) end),
+  NodePID = erlang:spawn(fun() -> controller:main(sleeping, 0, 0, EdgeOrddict, Nodename, 0) end),
   register(Nodename, NodePID),
   {NodePID, node(NodePID)}
 .
