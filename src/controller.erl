@@ -2,7 +2,8 @@
 %%% @author Matthias Stellmann and Grzegorz Markiewicz
 %%% @copyright (C) 2013, HAW Hamburg
 %%% @doc
-%%%   TODO writing the doc
+%%%   This module provides the functionality of the main receive loop.
+%%%   It delegegates most of the functions to the other modules.
 %%% @private
 %%% @end
 %%% Created : 03. Nov 2013

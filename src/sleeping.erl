@@ -2,7 +2,7 @@
 %%% @author Matthias Stellmann and Grzegorz Markiewicz
 %%% @copyright (C) 2013, HAW Hamburg
 %%% @doc
-%%%   TODO writing the doc
+%%%   This module provides the functionality of the sleeping state.
 %%% @private
 %%% @end
 %%% Created : 03. Nov 2013
@@ -11,7 +11,7 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([]).
+-export([wakeup/2]).
 
 
 %% @doc
