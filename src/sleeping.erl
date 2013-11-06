@@ -15,10 +15,10 @@
 
 
 %% @doc
-%% This function is called from the sleeping state of the node.
-%% It searches for the akmg and sends the connect msg to the node
-%% on the opposite side of the akmg. Afterwards the node changes into
-%% the sleeping state and waits for a response from the other node.
+%%  This function is called from the sleeping state of the node.
+%%  It searches for the akmg and sends the connect msg to the node
+%%  on the opposite side of the akmg. Afterwards the node changes into
+%%  the sleeping state and waits for a response from the other node.
 %%    EdgeOrddict:  Orddict where the key is the EdgeWeight and value
 %%                  is a tuple {OtherNodeName,EdgeState}
 %%    OwnNodeName:  The system known name of our own node
