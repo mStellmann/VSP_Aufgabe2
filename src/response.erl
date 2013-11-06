@@ -11,7 +11,7 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([connect/7, initiate/7, reject/8]).
+-export([connect/7, initiate/8, reject/10]).
 
 %% @doc
 %%  This function is in charge of figuring out, if a connect message should be send.
@@ -55,7 +55,7 @@ connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, OtherLevel, Edge, F
 %%  @doc
 %% TODO
 %%  GlobalVars: {BestEdge, BestWT, TestEdge, InBranch, FindCount}
-initiate(Level, FragName, NodeState, Edge, EdgeOrddict, TestEdge, FindCount) ->
+initiate(OwnNodeName, Level, FragName, NodeState, Edge, EdgeOrddict, TestEdge, FindCount) ->
   InBranch = Edge,
   BestEdge = nil,
   BestWT = infinity,
@@ -65,7 +65,7 @@ initiate(Level, FragName, NodeState, Edge, EdgeOrddict, TestEdge, FindCount) ->
   {ok, NewFindCount} = rekOrddict(FilteredOrddict, EdgeWeigths, Level, FragName, NodeState, FindCount),
   case NodeState == find of
     true ->
-      {ok, NewTestEdge, NewNodeState} = nodeFunction:test(EdgeOrddict, Level, NodeState, FragName, FindCount, InBranch, BestWT),
+      {ok, NewTestEdge, NewNodeState} = nodeFunction:test(EdgeOrddict, Level, NodeState, FragName, OwnNodeName, FindCount, InBranch, BestWT),
       {ok, InBranch, BestEdge, BestWT, NewFindCount, NewTestEdge, NewNodeState};
     false ->
       {ok, InBranch, BestEdge, BestWT, NewFindCount, TestEdge, NodeState}
@@ -97,8 +97,19 @@ rekOrddict(FilteredOrddict, EdgeWeigths, Level, FragName, NodeState, FindCount) 
 
 %% @doc
 %%  TODO
-reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, FindCount, InBranch, BestWT) ->
-  doSomething
+reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeName, OwnNodeState, OwnFragName, FindCount, InBranch, BestWT, TestEdge) ->
+  EdgeWeight = element(1, Edge),
+  EdgeValue = orddict:fetch(EdgeWeight, OwnEdgeOrddict),
+  EdgeName = element(1, EdgeValue),
+  EdgeState = element(2, EdgeValue),
+  case EdgeState == basic of
+    true ->
+      NewEdgeOrddict = orddict:store(EdgeWeight, {EdgeName, rejected}, OwnEdgeOrddict),
+      {ok, NewTestEdge, NewNodeState} = nodeFunction:test(OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, OwnNodeName, FindCount, InBranch, BestWT),
+      {ok, NewEdgeOrddict, NewTestEdge, NewNodeState};
+    false ->
+      {ok, OwnEdgeOrddict, TestEdge, OwnNodeState}
+  end
 .
 
 
