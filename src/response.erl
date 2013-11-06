@@ -7,7 +7,7 @@
 %%% @end
 %%% Created : 03. Nov 2013
 %%%-------------------------------------------------------------------
--module(found).
+-module(response).
 -author("StellmannMarkiewicz").
 
 %% API
