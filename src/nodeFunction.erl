@@ -11,7 +11,27 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([test/7, report/5]).
+-export([test/7, report/5, wakeup/2]).
+
+%% @doc
+%%  This function is called from the sleeping state of the node.
+%%  It searches for the akmg and sends the connect msg to the node
+%%  on the opposite side of the akmg. Afterwards the node changes into
+%%  the sleeping state and waits for a response from the other node.
+%%    EdgeOrddict:  Orddict where the key is the EdgeWeight and value
+%%                  is a tuple {OtherNodeName,EdgeState}
+%%    OwnNodeName:  The system known name of our own node
+wakeup(EdgeOrddict, OwnNodeName) ->
+  EdgeWeights = orddict:fetch_keys(EdgeOrddict),
+  AkmgWeight = lists:min(EdgeWeights),
+  % Value for the key (EdgeNumber) that is a Tuple {OtherNodeName, EdgeState}
+  EdgeToMark = orddict:fetch(AkmgWeight, EdgeOrddict),
+  OtherNodeName = element(1, EdgeToMark),
+  MarkedEdge = {OtherNodeName, branch},
+  NewEdgeOrddict = orddict:store(AkmgWeight, MarkedEdge, EdgeOrddict),
+  nodeUtil:sendMessageTo(OtherNodeName, {connect, 0, {AkmgWeight, OwnNodeName, OtherNodeName}}),
+  {ok, NewEdgeOrddict}
+.
 
 %% @doc
 %%  This function search for a new edge and sends a test-message if a new basic edge is found.
@@ -55,3 +75,15 @@ report(TestEdge, FindCount, OwnNodeState, InBranch, BestWT) ->
 reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, FindCount, InBranch, BestWT) ->
 
   .
+
+%% @doc
+%%  TODO
+changeRoot(OwnEdgeOrddict, BestEdge) ->
+  EdgeName = element(1, BestEdge),
+  {_, EdgeState} = orddict:fetch(EdgeName, OwnEdgeOrddict),
+  case EdgeState == branch of
+    true ->
+      ReceiveNode = element(3, BestEdge),
+      nodeUtil:sendMessageTo(ReceiveNode, {})
+  end
+.

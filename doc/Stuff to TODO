@@ -1,7 +1,8 @@
 Logging einfügen
-Doc schreiben
+Docs schreiben
 
 - Entwurf:
     - nodeUtil erklären
     - kein find + found -> nodeFunction and response
     - neues modulübersichtsbild
+    - controller erklären -> alles mit rückgabewerten -> controller loopt
