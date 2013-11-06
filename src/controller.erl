@@ -19,7 +19,7 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, FindCount
     wakeup when OwnNodeState == sleeping ->
       wakeup(OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, FindCount);
     {initiate, Level, FragName, NodeState, Edge} ->
-      doSomething;       %   TODO
+      nodeUtil:initiate(Level, FragName, NodeState, Edge, OwnEdgeOrddict);       %   TODO
     {test, Level, FragName, Edge} ->
       doSomething;     %   TODO
     {accept, Edge} ->
