@@ -11,7 +11,7 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([connect/7, initiate/7]).
+-export([connect/7, initiate/7, reject/8]).
 
 %% @doc
 %%  This function is in charge of figuring out, if a connect message should be send.
@@ -94,4 +94,11 @@ rekOrddict(FilteredOrddict, EdgeWeigths, Level, FragName, NodeState, FindCount) 
       rekOrddict(FilteredOrddict, Tail, Level, FragName, NodeState, FindCount)
   end
 .
+
+%% @doc
+%%  TODO
+reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, FindCount, InBranch, BestWT) ->
+  doSomething
+.
+
 

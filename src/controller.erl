@@ -26,7 +26,7 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
     {accept, Edge} ->
       doSomething;     %   TODO
     {reject, Edge} ->
-      nodeFunction:reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, FindCount, InBranch, BestWT)
+      response:reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, FindCount, InBranch, BestWT),
       doSomething;      %   TODO
     {report, Weight, Edge} ->
       doSomething;        %   TODO
@@ -47,6 +47,6 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
 %% @doc
 %%  Function deligates to the sleeping module
 wakeup(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
-  {ok, NewEdgeOrddict} = sleeping:wakeup(OwnEdgeOrddict, OwnNodeName),
+  {ok, NewEdgeOrddict} = nodeFunction:wakeup(OwnEdgeOrddict, OwnNodeName),
   main(OwnNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount)
 .
