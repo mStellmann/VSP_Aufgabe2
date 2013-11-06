@@ -43,7 +43,7 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, FindCount
 
 %% @private
 %% @doc
-%% Function deligates to the sleeping module
+%%  Function deligates to the sleeping module
 wakeup(OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, FindCount) ->
   {ok, NewEdgeOrddict} = sleeping:wakeup(OwnEdgeOrddict, OwnNodeName),
   main(found, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, FindCount)
