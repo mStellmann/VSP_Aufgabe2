@@ -11,7 +11,7 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([test/7, report/5, wakeup/2]).
+-export([test/8, report/5, wakeup/2, changeRoot/3]).
 
 %% @doc
 %%  This function is called from the sleeping state of the node.
@@ -39,16 +39,17 @@ wakeup(EdgeOrddict, OwnNodeName) ->
 %%  returns:
 %%    {ok, TestEdge, OwnNodeState} if no new edge is found
 %%    {ok, NewTestEdge, OwnNodeState} if a test-edge is found
-test(OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragname, FindCount, InBranch, BestWT) ->
+test(OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragname, OwnNodeName, FindCount, InBranch, BestWT) ->
   BasicEdgeOrddict = orddict:filter(fun(_, Val) -> element(2, Val) == basic end, OwnEdgeOrddict),
   case BasicEdgeOrddict == [] of
     true ->
       report(nil, FindCount, OwnNodeState, InBranch, BestWT);
     false ->
       EdgeWeights = orddict:fetch_keys(BasicEdgeOrddict),
-      AkmgWeight = lists:min(EdgeWeights),
-      NewTestEdge = orddict:fetch(AkmgWeight, BasicEdgeOrddict),
-      ReceiveNodeName = element(3, NewTestEdge),
+      TestEdgeWeight = lists:min(EdgeWeights),
+      NewTestEdgeFound = orddict:fetch(TestEdgeWeight, BasicEdgeOrddict),
+      ReceiveNodeName = element(1, NewTestEdgeFound),
+      NewTestEdge = {TestEdgeWeight, OwnNodeName, ReceiveNodeName},
       nodeUtil:sendMessageTo(ReceiveNodeName, {test, OwnLevel, OwnFragname, NewTestEdge}),
       {ok, NewTestEdge, OwnNodeState}
   end
@@ -65,23 +66,28 @@ report(TestEdge, FindCount, OwnNodeState, InBranch, BestWT) ->
     false ->
       {ok, TestEdge, OwnNodeState};
     true ->
-      ReceiveNodeName = element(3, InBranch),
+      ReceiveNodeName = element(2, InBranch),
       nodeUtil:sendMessageTo(ReceiveNodeName, {report, BestWT, InBranch}),
       {ok, TestEdge, found}
   end
 .
 
 %% @doc
-%%  TODO
+%%  TODO doc
+%%
 %%  returns:
 %%    {ok, EdgeOrdict}
-changeRoot(OwnEdgeOrddict, BestEdge) ->
-  EdgeName = element(1, BestEdge),
-  {_, EdgeState} = orddict:fetch(EdgeName, OwnEdgeOrddict),
+changeRoot(OwnEdgeOrddict, OwnLevel, BestEdge) ->
+  EdgeWeight = element(1, BestEdge),
+  ReceiveNode = element(2, BestEdge),
+  {_, EdgeState} = orddict:fetch(EdgeWeight, OwnEdgeOrddict),
   case EdgeState == branch of
     true ->
-      ReceiveNode = element(3, BestEdge),
       nodeUtil:sendMessageTo(ReceiveNode, {changeroot, BestEdge}),
-      {ok, OwnEdgeOrddict}
+      {ok, OwnEdgeOrddict};
+    false ->
+      nodeUtil:sendMessageTo(ReceiveNode, {connect, OwnLevel, BestEdge}),
+      NewEdgeOrddict = orddict:store(EdgeWeight, {ReceiveNode, branch}, OwnEdgeOrddict),
+      {ok, NewEdgeOrddict}
   end
 .
