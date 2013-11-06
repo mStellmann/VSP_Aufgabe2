@@ -73,12 +73,15 @@ report(TestEdge, FindCount, OwnNodeState, InBranch, BestWT) ->
 
 %% @doc
 %%  TODO
+%%  returns:
+%%    {ok, EdgeOrdict}
 changeRoot(OwnEdgeOrddict, BestEdge) ->
   EdgeName = element(1, BestEdge),
   {_, EdgeState} = orddict:fetch(EdgeName, OwnEdgeOrddict),
   case EdgeState == branch of
     true ->
       ReceiveNode = element(3, BestEdge),
-      nodeUtil:sendMessageTo(ReceiveNode, {})
+      nodeUtil:sendMessageTo(ReceiveNode, {changeroot, BestEdge}),
+      {ok, OwnEdgeOrddict}
   end
 .
