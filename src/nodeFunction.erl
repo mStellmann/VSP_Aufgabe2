@@ -67,7 +67,9 @@ report(TestEdge, FindCount, OwnNodeState, InBranch, BestWT) ->
       {ok, TestEdge, OwnNodeState};
     true ->
       ReceiveNodeName = element(2, InBranch),
-      nodeUtil:sendMessageTo(ReceiveNodeName, {report, BestWT, InBranch}),
+      NodeWeight = element(1, InBranch),
+      OwnNodeName = element(3, InBranch),
+      nodeUtil:sendMessageTo(ReceiveNodeName, {report, BestWT, {NodeWeight, OwnNodeName, ReceiveNodeName}}),
       {ok, TestEdge, found}
   end
 .
@@ -80,13 +82,15 @@ report(TestEdge, FindCount, OwnNodeState, InBranch, BestWT) ->
 changeRoot(OwnEdgeOrddict, OwnLevel, BestEdge) ->
   EdgeWeight = element(1, BestEdge),
   ReceiveNode = element(2, BestEdge),
+  OwnNodeName = element(3, BestEdge),
+  SendEdge = {EdgeWeight, OwnNodeName, ReceiveNode},
   {_, EdgeState} = orddict:fetch(EdgeWeight, OwnEdgeOrddict),
   case EdgeState == branch of
     true ->
-      nodeUtil:sendMessageTo(ReceiveNode, {changeroot, BestEdge}),
+      nodeUtil:sendMessageTo(ReceiveNode, {changeroot, SendEdge}),
       {ok, OwnEdgeOrddict};
     false ->
-      nodeUtil:sendMessageTo(ReceiveNode, {connect, OwnLevel, BestEdge}),
+      nodeUtil:sendMessageTo(ReceiveNode, {connect, OwnLevel, SendEdge}),
       NewEdgeOrddict = orddict:store(EdgeWeight, {ReceiveNode, branch}, OwnEdgeOrddict),
       {ok, NewEdgeOrddict}
   end
