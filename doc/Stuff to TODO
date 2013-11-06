@@ -1,2 +1,6 @@
 Logging einfügen
 Doc schreiben
+
+- Entwurf:
+    - nodeUtil erklären
+    - sehr wahrscheinlich kein find + found
