@@ -26,6 +26,7 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
     {accept, Edge} ->
       doSomething;     %   TODO
     {reject, Edge} ->
+      nodeFunction:reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, FindCount, InBranch, BestWT)
       doSomething;      %   TODO
     {report, Weight, Edge} ->
       doSomething;        %   TODO
