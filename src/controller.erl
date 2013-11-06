@@ -12,14 +12,15 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([main/6]).
+-export([main/10]).
 
-main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, FindCount) ->
+main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
   receive
     wakeup when OwnNodeState == sleeping ->
-      wakeup(OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, FindCount);
+      wakeup(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount);
     {initiate, Level, FragName, NodeState, Edge} ->
-      nodeUtil:initiate(Level, FragName, NodeState, Edge, OwnEdgeOrddict);       %   TODO
+      {ok, NewInBranch, NewBestEdge, NewBestWT, NewFindCount, NewTestEdge, NewNodeState} = response:initiate(Level, FragName, NodeState, Edge, OwnEdgeOrddict, TestEdge, FindCount),
+      main(NewNodeState, Level, FragName, OwnEdgeOrddict, OwnNodeName, NewBestEdge, NewBestWT, NewTestEdge, NewInBranch, NewFindCount);
     {test, Level, FragName, Edge} ->
       doSomething;     %   TODO
     {accept, Edge} ->
@@ -33,10 +34,10 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, FindCount
     {connect, Level, Edge} ->
       case OwnNodeState == sleeping of
         true ->
-          wakeup(OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, FindCount);
+          wakeup(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount);
         false ->
-          {ok, NewEdgeOrddict, NewFindCount} = nodeUtil:connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, Level, Edge, FindCount),
-          main(OwnNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, NewFindCount)
+          {ok, NewEdgeOrddict, NewFindCount} = response:connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, Level, Edge, FindCount),
+          main(OwnNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, NewFindCount)
       end
   end
 .
@@ -44,7 +45,7 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, FindCount
 %% @private
 %% @doc
 %%  Function deligates to the sleeping module
-wakeup(OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, FindCount) ->
+wakeup(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
   {ok, NewEdgeOrddict} = sleeping:wakeup(OwnEdgeOrddict, OwnNodeName),
-  main(found, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, FindCount)
+  main(OwnNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount)
 .
