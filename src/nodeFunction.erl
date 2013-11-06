@@ -70,11 +70,6 @@ report(TestEdge, FindCount, OwnNodeState, InBranch, BestWT) ->
       {ok, TestEdge, found}
   end
 .
-%% @doc
-%%  TODO
-reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, FindCount, InBranch, BestWT) ->
-
-  .
 
 %% @doc
 %%  TODO
