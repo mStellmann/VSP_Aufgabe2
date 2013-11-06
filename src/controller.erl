@@ -31,7 +31,8 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
     {report, Weight, Edge} ->
       doSomething;        %   TODO
     {changeroot, Edge} ->
-      doSomething;      %   TODO
+      {ok, NewEdgeOrddict} = nodeFunction:changeRoot(OwnEdgeOrddict, OwnLevel, BestEdge),
+      main(OwnNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount);
     {connect, Level, Edge} ->
       case OwnNodeState == sleeping of
         true ->
