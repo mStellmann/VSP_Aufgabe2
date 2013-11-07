@@ -11,7 +11,7 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([logMessage/2, logStatus/10]).
+-export([logMessage/2, logStatus/9]).
 
 %% @private
 %% @doc
@@ -28,10 +28,8 @@ logMessage(NodeName, Message) ->
   werkzeug:logging(Filename, lists:concat(["[", werkzeug:timeMilliSecond(), "] ", NodeName, " - ", Message, "\n"]))
 .
 
-logStatus(NodeState, Level, FragName, EdgeOrddict, NodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
-  Message1 = lists:concat(["[", werkzeug:timeMilliSecond(), "] STATUS: ", NodeName, " NodeState: ", NodeState, " FragmentLevel: ", Level, " FragName: ", FragName, " EdgeOrddict:", EdgeOrddict]),
-  Message2 = lists:concat([" BestEdge: ", BestEdge, " BestWT: ", BestWT, " TestEdge: ", TestEdge, " InBanch: ", InBranch, " FindCount: ", FindCount, "\n"]),
-  Message = string:concat(Message1, Message2),
+logStatus(NodeState, Level, FragName, NodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
+  Message = lists:concat(["[", werkzeug:timeMilliSecond(), "] STATUS: ", NodeName, " NodeState: ", NodeState, " FragmentLevel: ", Level, " FragName: ", FragName, " BestEdge: ", BestEdge, " BestWT: ", BestWT, " TestEdge: ", TestEdge, " InBanch: ", InBranch, " FindCount: ", FindCount, "\n"]),
   Filename = lists:concat(["logs/", NodeName, "@", getHostname(), ".log"]),
   werkzeug:logging(Filename, Message)
 .
