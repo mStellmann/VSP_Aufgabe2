@@ -11,18 +11,11 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([connect/7, initiate/8, reject/10, report/10]).
+-export([connect/7, initiate/8, reject/10]).
 
 %% @doc
 %%  This function is in charge of figuring out, if a connect message should be send.
 %%  This is done by comparing the own fragment level to the level of the other fragment.
-%%    OwnLevel:       The level of the fragment of the node which calls this function
-%%    OwnEdgeOrddict: The orddict which contains the edge adjacent to this node
-%%    OwnFragName:    The name of the fragment containing this node
-%%    OwnNodeState:   The state of this node (sleeping,find,found)
-%%    Otherlevel:     The level of the fragment of the node this node tries to connect to
-%%    Edge:           The edge this node tries to connect trough
-%%    FindCount:      TODO
 connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, OtherLevel, Edge, FindCount) ->
   EdgeWeight = element(1, Edge),
   OtherNodeName = element(2, Edge),
@@ -173,4 +166,65 @@ report(ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCou
 %%   end
 .
 
+%% @doc
+%%  TODO
+%%  returns:
+%%    {ok, NewEdgeOrddict, NewTestEdge, NewNodeState}
+test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge, TestEdge, FindCount, InBranch, BestWT) ->
+  EdgeWeight = element(1, Edge),
+  OtherNodeName = element(2, Edge),
+  OwnNodeName = element(3, Edge),
+  SendingEdge = {EdgeWeight, OwnNodeName, OtherNodeName},
+  case Level > OwnLevel of
+    true ->
+      % put the message at the back of the queue
+      self ! {test, Level, FragName, Edge};
+    false ->
+      case FragName /= OwnFragName of
+        true ->
+          nodeUtil:sendMessageTo(OtherNodeName, {accept, SendingEdge});
+        false ->
+          {_, EdgeState} = orddict:fetch(EdgeWeight, OwnEdgeOrddict),
+          case EdgeState == basic of
+            true ->
+              NewEdgeOrddict = orddict:store(EdgeWeight, {OtherNodeName, rejected}, OwnEdgeOrddict),
+              case SendingEdge /= TestEdge of
+                true ->
+                  nodeUtil:sendMessageTo(OtherNodeName, {reject, SendingEdge}),
+                  {ok, NewEdgeOrddict, TestEdge, OwnNodeState};
+                false ->
+                  {ok, NewTestEdge, NewNodeState} = nodeFunction:test(OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, OwnNodeName, FindCount, InBranch, BestWT),
+                  {ok, NewEdgeOrddict, NewTestEdge, NewNodeState}
+              end;
+            false ->
+              case SendingEdge /= TestEdge of
+                true ->
+                  nodeUtil:sendMessageTo(OtherNodeName, {reject, SendingEdge}),
+                  {ok, OwnEdgeOrddict, TestEdge, OwnNodeState};
+                false ->
+                  {ok, NewTestEdge, NewNodeState} = nodeFunction:test(OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, OwnNodeName, FindCount, InBranch, BestWT),
+                  {ok, OwnEdgeOrddict, NewTestEdge, NewNodeState}
+              end
+          end
+      end
+  end
+.
 
+%% @doc
+%%  TODO doc
+%%  returns:
+%%    {ok, NewTestEdge, NewNodeState, NewBestEdge, NewBestWT}
+accept(Edge, BestEdge, BestWT, FindCount, OwnNodeState, InBranch) ->
+  NewTestEdge = nil,
+  EdgeWeight = element(1, Edge),
+  case EdgeWeight < BestWT of
+    true ->
+      NewBestEdge = Edge,
+      NewBestWT = EdgeWeight,
+      {ok, NewTestEdge2, NewNodeState} = nodeFunction:report(NewTestEdge, FindCount, OwnNodeState, InBranch, NewBestWT),
+      {ok, NewTestEdge2, NewNodeState, NewBestEdge, NewBestWT};
+    false ->
+      {ok, NewTestEdge2, NewNodeState} = nodeFunction:report(NewTestEdge, FindCount, OwnNodeState, InBranch, BestWT),
+      {ok, NewTestEdge2, NewNodeState, BestEdge, BestWT}
+  end
+.

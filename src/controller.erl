@@ -14,6 +14,17 @@
 %% API
 -export([main/10]).
 
+%% @doc
+%%  This function the the receive loop.
+%%
+%%  Params: [valid for all sources]
+%%    OwnLevel:       The level of the fragment of the node which calls this function
+%%    OwnEdgeOrddict: The orddict which contains the edge adjacent to this node
+%%    OwnFragName:    The name of the fragment containing this node
+%%    OwnNodeState:   The state of this node (sleeping,find,found)
+%%    Otherlevel:     The level of the fragment of the node this node tries to connect to
+%%    Edge:           The edge this node tries to connect trough
+%%    FindCount:      TODO
 main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
   receive
     wakeup when OwnNodeState == sleeping ->
@@ -26,11 +37,12 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
         true ->
           wakeup(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount);
         false ->
-          anyThing,    % TODO
-          main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount)
+          {ok, NewEdgeOrddict, NewTestEdge, NewNodeState} = response:test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge, TestEdge, FindCount, InBranch, BestWT),
+          main(NewNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, NewTestEdge, InBranch, FindCount)
       end;
     {accept, Edge} ->
-      doSomething;     %   TODO
+      {ok, NewTestEdge, NewNodeState, NewBestEdge, NewBestWT} = response:accept(Edge, BestEdge, BestWT, FindCount, OwnNodeState, InBranch),
+      main(NewNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, NewBestEdge, NewBestWT, NewTestEdge, InBranch, FindCount);
     {reject, Edge} ->
       {ok, NewEdgeOrddict, NewTestEdge, NewNodeState} = response:reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeName, OwnNodeState, OwnFragName, FindCount, InBranch, BestWT, TestEdge),
       main(NewNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, NewTestEdge, InBranch, FindCount);
@@ -48,7 +60,8 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
           main(OwnNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, NewFindCount)
       end;
     Any ->
-      anythingReceived % TODO logging
+      Message = lists:concat(["Received an unknown message: ", Any]),
+      logging:logMessage(OwnNodeName, Message)
   end
 .
 

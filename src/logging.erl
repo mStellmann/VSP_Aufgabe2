@@ -25,5 +25,5 @@ getHostname() ->
 %%  The Function logs the given Message into a .log-File and writes it on the console.
 logMessage(Nodename, Message) ->
   Filename = lists:concat([Nodename, "@", getHostname(), ".log"]),
-  werkzeug:logging(Filename, lists:concat(["[", werkzeug:timeMilliSecond(), "] ", Nodename, ": ", Message, "\n"]))
+  werkzeug:logging(Filename, lists:concat(["[", werkzeug:timeMilliSecond(), "] ", Nodename, " - ", Message, "\n"]))
 .
