@@ -35,7 +35,7 @@ connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, OtherLevel, Edge, F
       {_, EdgeState} = orddict:find(EdgeWeight, OwnEdgeOrddict),
       case EdgeState == basic of
         true ->
-          self ! {connect, OtherLevel, Edge},
+          self() ! {connect, OtherLevel, Edge},
           {ok, OwnEdgeOrddict, FindCount};
         false ->
           NewLevel = OwnLevel + 1,
@@ -171,7 +171,8 @@ test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge,
   case Level > OwnLevel of
     true ->
       % put the message at the back of the queue
-      self ! {test, Level, FragName, Edge};
+      self() ! {test, Level, FragName, Edge},
+      {ok, OwnEdgeOrddict, TestEdge, OwnNodeState};
     false ->
       case FragName /= OwnFragName of
         true ->
@@ -187,7 +188,7 @@ test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge,
                   nodeUtil:sendMessageTo(OtherNodeName, {reject, SendingEdge}),
                   {ok, NewEdgeOrddict, TestEdge, OwnNodeState};
                 false ->
-                  {ok, NewTestEdge, NewNodeState} = nodeFunction:test(OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, OwnNodeName, FindCount, InBranch, BestWT),
+                  {ok, NewTestEdge, NewNodeState} = nodeFunction:test(NewEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, OwnNodeName, FindCount, InBranch, BestWT),
                   {ok, NewEdgeOrddict, NewTestEdge, NewNodeState}
               end;
             false ->
