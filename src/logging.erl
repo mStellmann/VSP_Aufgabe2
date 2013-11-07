@@ -11,7 +11,7 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([logMessage/2]).
+-export([logMessage/2, logStatus/10]).
 
 %% @private
 %% @doc
@@ -23,7 +23,14 @@ getHostname() ->
 
 %% @doc
 %%  The Function logs the given Message into a .log-File and writes it on the console.
-logMessage(Nodename, Message) ->
-  Filename = lists:concat(["logs/", Nodename, "@", getHostname(), ".log"]),
-  werkzeug:logging(Filename, lists:concat(["[", werkzeug:timeMilliSecond(), "] ", Nodename, " - ", Message, "\n"]))
+logMessage(NodeName, Message) ->
+  Filename = lists:concat(["logs/", NodeName, "@", getHostname(), ".log"]),
+  werkzeug:logging(Filename, lists:concat(["[", werkzeug:timeMilliSecond(), "] ", NodeName, " - ", Message, "\n"]))
+.
+
+logStatus(NodeState, Level, FragName, EdgeOrddict, NodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
+  Message = lists:concat(["[", werkzeug:timeMilliSecond(), "] STATUS: ", NodeName, " NodeState: ", NodeState, " FragmentLevel: ", Level, " FragName: ", FragName, " EdgeOrddict:", EdgeOrddict,
+    " BestEdge:", BestEdge, " BestWT: ", BestWT, " TestEdge: ", TestEdge, " InBanch: ", InBranch, " FindCount: ", FindCount, "\n"]),
+  Filename = lists:concat(["logs/", NodeName, "@", getHostname(), ".log"]),
+  werkzeug:logging(Filename, Message)
 .
