@@ -16,6 +16,7 @@
 %%  This function starts a node in the sleeping state.
 %%  Nodename:   Name of the node as a String
 start(Nodename) ->
+  % nodeUtil:findGlobalHosts(),
   Filepath = lists:concat(["nodeconfigs/", Nodename, ".cfg"]),
   {ok, EdgeList} = file:consult(Filepath),
   EdgeOrddict = createEdgeOrddict(EdgeList, orddict:new()),
