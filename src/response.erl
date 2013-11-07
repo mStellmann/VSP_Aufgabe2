@@ -120,28 +120,29 @@ report(ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCou
           NewBestWT = ReportedEdgeWeight,
           NewBestEdge = Edge,
           {ok, NewTestEdge, NewOwnNodeState} = nodeFunction:report(TestEdge, FindCount, OwnNodeState, InBranch, BestWT),
-          {ok, ReportedEdgeWeight, Edge, NewOwnNodeState, OwnEdgeOrddict, OwnLevel, NewFindCount, NewBestEdge, InBranch, NewBestWT, NewTestEdge};
+          {ok, NewOwnNodeState, OwnEdgeOrddict, OwnLevel, NewFindCount, NewBestEdge, InBranch, NewBestWT, NewTestEdge};
         false ->
           %% differece between pseudo-code and erlang ( BesWT and BestEdge returned )
           {ok, NewTestEdge, NewOwnNodeState} = nodeFunction:report(TestEdge, FindCount, OwnNodeState, InBranch, BestWT),
-          {ok, ReportedEdgeWeight, Edge, NewOwnNodeState, OwnEdgeOrddict, OwnLevel, NewFindCount, BestEdge, InBranch, BestWT, NewTestEdge}
+          {ok, NewOwnNodeState, OwnEdgeOrddict, OwnLevel, NewFindCount, BestEdge, InBranch, BestWT, NewTestEdge}
       end;
     false ->
       case OwnNodeState == find of
         true ->
           self ! {report, ReportedEdgeWeight, Edge},
-          {ok, ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
+          {ok, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
         false ->
           case ReportedEdgeWeight > BestWT of
             true ->
               {ok, NewEdgeOrddict} = nodeFunction:changeRoot(OwnEdgeOrddict, OwnLevel, BestEdge),
-              {ok, ReportedEdgeWeight, Edge, OwnNodeState, NewEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
+              {ok, OwnNodeState, NewEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
             false ->
               case ReportedEdgeWeight == BestWT == infinity of
                 true ->
-                  {halt, ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
+                  %% in case of more information on exit: {halt, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
+                  {halt};
                 false ->
-                  {ok, ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge}
+                  {ok, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge}
               end
           end
       end
