@@ -1,11 +1,12 @@
-Logging einfügen
 Docs schreiben
 
-- Entwurf:
-    - nodeUtil erklären
-    - kein find + found -> nodeFunction and response
-    - neues modulübersichtsbild
-    - controller erklären -> alles mit rückgabewerten -> controller loopt
-    - BestEdge, TestEdge, InBranch erklären.. Reihenfolge der Tupleelemente
+Statuswerte Loggin !!! -> Fehleranalyse ..
+arbeiten wir mit nil?
+es kann durchaus sein. wer sieht bei dieser komischen programmiersprache schon durch?
+ich nicht! und der herr neben mir auch nicht!
+was ist denn receipt?
 
-- Orddict => key -> {value} ; EdgeNumber -> {NodeName,EdgeState}
+LOL  HAHAHAHAHAHAHAAHAHAHA HAHAHAHAHAAHHAAHAHAHAHAH
+
+Entwurf:
+    - Orddict => key -> {value} ; EdgeNumber -> {NodeName,EdgeState}

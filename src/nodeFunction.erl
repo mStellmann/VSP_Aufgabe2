@@ -64,8 +64,10 @@ test(OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragname, OwnNodeName, FindCount
 report(TestEdge, FindCount, OwnNodeState, InBranch, BestWT) ->
   case TestEdge == nil andalso FindCount == 0 of
     false ->
+      logging:logDebug("preocedure - report: Testedge == nil and Findcount == 0 (false)"),
       {ok, TestEdge, OwnNodeState};
     true ->
+      logging:logDebug("preocedure - report: Testedge == nil and Findcount == 0 (true)"),
       ReceiveNodeName = element(2, InBranch),
       NodeWeight = element(1, InBranch),
       OwnNodeName = element(3, InBranch),

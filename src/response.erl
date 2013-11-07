@@ -58,7 +58,7 @@ initiate(OwnNodeName, Level, FragName, NodeState, Edge, EdgeOrddict, TestEdge, F
   {ok, NewFindCount} = rekOrddict(FilteredOrddict, EdgeWeigths, Level, FragName, NodeState, FindCount, OwnNodeName),
   case NodeState == find of
     true ->
-      {ok, NewTestEdge, NewNodeState} = nodeFunction:test(EdgeOrddict, Level, NodeState, FragName, OwnNodeName, FindCount, InBranch, BestWT),
+      {ok, NewTestEdge, NewNodeState} = nodeFunction:test(EdgeOrddict, Level, NodeState, FragName, OwnNodeName, NewFindCount, InBranch, BestWT),
       {ok, InBranch, BestEdge, BestWT, NewFindCount, NewTestEdge, NewNodeState};
     false ->
       {ok, InBranch, BestEdge, BestWT, NewFindCount, TestEdge, NodeState}
@@ -77,14 +77,14 @@ rekOrddict(FilteredOrddict, EdgeWeigths, Level, FragName, NodeState, FindCount, 
       Value = orddict:fetch(Head, FilteredOrddict),
       OtherNodeName = element(1, Value),
       NodeState = element(2, Value),
-      case NodeState == find of
-        true ->
-          FindCount = FindCount + 1;
-        false ->
-          FindCount
-      end,
+      NewFindCount = case NodeState == find of
+                       true ->
+                         FindCount + 1;
+                       false ->
+                         FindCount
+                     end,
       nodeUtil:sendMessageTo(OtherNodeName, {initiate, Level, FragName, NodeState, {Head, OwnNodeName, OtherNodeName}}),
-      rekOrddict(FilteredOrddict, Tail, Level, FragName, NodeState, FindCount, OwnNodeName)
+      rekOrddict(FilteredOrddict, Tail, Level, FragName, NodeState, NewFindCount, OwnNodeName)
   end
 .
 
