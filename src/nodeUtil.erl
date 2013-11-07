@@ -18,13 +18,14 @@ findGlobalHosts() ->
   net_adm:world_list(Hostlist)
 .
 
-%% @doc
+%% @doc     % OtherNodePID = global:whereis_name(OtherNodeName),
 %%  Finds the PID of the Node through her  global known name and sends the message
 %%  to the node
 %%    OtherNodeName:  The global name of the node
 %%    Message:        Message that will be send
 sendMessageTo(OtherNodeName, Message) ->
-  OtherNodePID = global:whereis_name(OtherNodeName),
+  OtherNodePID = erlang:whereis(OtherNodeName),
+  % OtherNodePID = global:whereis_name(OtherNodeName),
   OtherNodePID ! Message
 .
 

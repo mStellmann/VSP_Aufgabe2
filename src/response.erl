@@ -137,7 +137,7 @@ report(ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCou
               {ok, NewEdgeOrddict} = nodeFunction:changeRoot(OwnEdgeOrddict, OwnLevel, BestEdge),
               {ok, OwnNodeState, NewEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
             false ->
-              case ReportedEdgeWeight == BestWT == infinity of
+              case ReportedEdgeWeight == BestWT andalso BestWT == infinity of
                 true ->
                   %% in case of more information on exit: {halt, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
                   {halt};
