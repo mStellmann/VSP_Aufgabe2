@@ -11,7 +11,7 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([logMessage/2, logStatus/9]).
+-export([logMessage/2, logStatus/9, logDebug/1]).
 
 %% @private
 %% @doc
@@ -33,4 +33,9 @@ logStatus(NodeState, Level, FragName, NodeName, BestEdge, BestWT, TestEdge, InBr
   % Filename = lists:concat(["logs/", NodeName, "@", getHostname(), ".log"]),
   % werkzeug:logging(Filename, Message)
   doNothing
+.
+
+logDebug(Message) ->
+  Filename = lists:concat(["logs/", "DEBUG: ", "@", getHostname(), ".log"]),
+  werkzeug:logging(Filename, lists:concat(["[", werkzeug:timeMilliSecond(), "] ", "DEBUG: ", " - ", Message, "\n"]))
 .
