@@ -165,7 +165,8 @@ test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge,
     false ->
       case FragName /= OwnFragName of
         true ->
-          nodeUtil:sendMessageTo(OtherNodeName, {accept, SendingEdge});
+          nodeUtil:sendMessageTo(OtherNodeName, {accept, SendingEdge}),
+          {ok, OwnEdgeOrddict, TestEdge, OwnNodeState};
         false ->
           {_, EdgeState} = orddict:fetch(EdgeWeight, OwnEdgeOrddict),
           case EdgeState == basic of
