@@ -2,7 +2,7 @@
 %%% @author Matthias Stellmann and Grzegorz Markiewicz
 %%% @copyright (C) 2013, HAW Hamburg
 %%% @doc
-%%%   This module provides the functionality of all response procedures.
+%%%   TODO writing the doc
 %%% @private
 %%% @end
 %%% Created : 03. Nov 2013
@@ -11,7 +11,7 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([connect/7, initiate/8, reject/10, test/11, accept/6]).
+-export([connect/7, initiate/8, reject/10]).
 
 %% @doc
 %%  This function is in charge of figuring out, if a connect message should be send.
@@ -47,6 +47,7 @@ connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, OtherLevel, Edge, F
 
 %%  @doc
 %% TODO
+%%  GlobalVars: {BestEdge, BestWT, TestEdge, InBranch, FindCount}
 initiate(OwnNodeName, Level, FragName, NodeState, Edge, EdgeOrddict, TestEdge, FindCount) ->
   InBranch = Edge,
   BestEdge = nil,
@@ -102,6 +103,67 @@ reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeName, OwnNodeState, OwnFragName, F
     false ->
       {ok, OwnEdgeOrddict, TestEdge, OwnNodeState}
   end
+.
+
+%% @doc
+%%  TODO
+%%    ReportedEdgeWeight: The weigt of the reported best Edge
+%%    Edge: Edge the message originates from
+report(ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge) ->
+  EdgeName = element(1, Edge),
+  InBranchName = element(1, InBranch),
+  case EdgeName /= InBranchName of
+    true ->
+      NewFindCount = FindCount - 1,
+      case ReportedEdgeWeight < BestWT of
+        true ->
+          NewBestWT = ReportedEdgeWeight,
+          NewBestEdge = Edge,
+          {ok, NewTestEdge, NewOwnNodeState} = nodeFunction:report(TestEdge, FindCount, OwnNodeState, InBranch, BestWT),
+          {ok, ReportedEdgeWeight, Edge, NewOwnNodeState, OwnEdgeOrddict, OwnLevel, NewFindCount, NewBestEdge, InBranch, NewBestWT, NewTestEdge};
+        false ->
+          %% differece between pseudo-code and erlang ( BesWT and BestEdge returned )
+          {ok, NewTestEdge, NewOwnNodeState} = nodeFunction:report(TestEdge, FindCount, OwnNodeState, InBranch, BestWT),
+          {ok, ReportedEdgeWeight, Edge, NewOwnNodeState, OwnEdgeOrddict, OwnLevel, NewFindCount, BestEdge, InBranch, BestWT, NewTestEdge}
+      end;
+    false ->
+      case OwnNodeState == find of
+        true ->
+          self ! {report, ReportedEdgeWeight, Edge},
+          {ok, ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
+        false ->
+          case ReportedEdgeWeight > BestWT of
+            true ->
+              {ok, NewEdgeOrddict} = nodeFunction:changeRoot(OwnEdgeOrddict, OwnLevel, BestEdge),
+              {ok, ReportedEdgeWeight, Edge, OwnNodeState, NewEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
+            false ->
+              case ReportedEdgeWeight == BestWT == infinity of
+                true ->
+                  {halt, ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
+                false ->
+                  {ok, ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge}
+              end
+          end
+      end
+  end
+%%   case OwnNodeState == find of
+%%     true->
+%%        self ! {report,ReportedEdgeWeight, Edge};
+%%     false->
+%%       doNothing
+%%   end,
+%%   case ReportedEdgeWeight > BestWT of
+%%     true->
+%%       nodeFunction:changeRoot();
+%%     false->
+%%       doNothing
+%%   end,
+%%   case ReportedEdgeWeight == BestWT == infinity of
+%%   true->
+%%     {halt};
+%%   false->
+%%   doNothing
+%%   end
 .
 
 %% @doc
