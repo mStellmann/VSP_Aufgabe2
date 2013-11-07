@@ -11,7 +11,7 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([connect/7, initiate/8, reject/10]).
+-export([connect/7, initiate/8, reject/10, test/11, accept/6, report/10]).
 
 %% @doc
 %%  This function is in charge of figuring out, if a connect message should be send.
@@ -146,24 +146,6 @@ report(ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCou
           end
       end
   end
-%%   case OwnNodeState == find of
-%%     true->
-%%        self ! {report,ReportedEdgeWeight, Edge};
-%%     false->
-%%       doNothing
-%%   end,
-%%   case ReportedEdgeWeight > BestWT of
-%%     true->
-%%       nodeFunction:changeRoot();
-%%     false->
-%%       doNothing
-%%   end,
-%%   case ReportedEdgeWeight == BestWT == infinity of
-%%   true->
-%%     {halt};
-%%   false->
-%%   doNothing
-%%   end
 .
 
 %% @doc
