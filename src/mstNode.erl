@@ -22,6 +22,7 @@ start(Nodename) ->
   EdgeOrddict = createEdgeOrddict(EdgeList, orddict:new()),
   %% OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount
   NodePID = erlang:spawn(fun() -> controller:main(sleeping, 0, 0, EdgeOrddict, Nodename, nil, nil, nil, nil, 0) end),
+  logging:logMessage(Nodename, "has started "),
   register(Nodename, NodePID),
   {NodePID, node(NodePID)}
 .
