@@ -22,7 +22,13 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
       {ok, NewInBranch, NewBestEdge, NewBestWT, NewFindCount, NewTestEdge, NewNodeState} = response:initiate(OwnNodeName, Level, FragName, NodeState, Edge, OwnEdgeOrddict, TestEdge, FindCount),
       main(NewNodeState, Level, FragName, OwnEdgeOrddict, OwnNodeName, NewBestEdge, NewBestWT, NewTestEdge, NewInBranch, NewFindCount);
     {test, Level, FragName, Edge} ->
-      doSomething;     %   TODO
+      case OwnNodeState == sleeping of
+        true ->
+          wakeup(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount);
+        false ->
+          anyThing,    % TODO
+          main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount)
+      end;
     {accept, Edge} ->
       doSomething;     %   TODO
     {reject, Edge} ->
@@ -40,7 +46,9 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
         false ->
           {ok, NewEdgeOrddict, NewFindCount} = response:connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, Level, Edge, FindCount),
           main(OwnNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, NewFindCount)
-      end
+      end;
+    Any ->
+      anythingReceived % TODO logging
   end
 .
 

@@ -6,3 +6,4 @@ Docs schreiben
     - kein find + found -> nodeFunction and response
     - neues modulübersichtsbild
     - controller erklären -> alles mit rückgabewerten -> controller loopt
+    - BestEdge, TestEdge, InBranch erklären.. Reihenfolge der Tupleelemente
