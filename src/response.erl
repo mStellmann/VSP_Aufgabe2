@@ -11,7 +11,7 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([connect/7, initiate/8, reject/10, test/11]).
+-export([connect/7, initiate/8, reject/10, test/11, accept/6]).
 
 %% @doc
 %%  This function is in charge of figuring out, if a connect message should be send.
@@ -145,5 +145,24 @@ test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge,
               end
           end
       end
+  end
+.
+
+%% @doc
+%%  TODO doc
+%%  returns:
+%%    {ok, NewTestEdge, NewNodeState, NewBestEdge, NewBestWT}
+accept(Edge, BestEdge, BestWT, FindCount, OwnNodeState, InBranch) ->
+  NewTestEdge = nil,
+  EdgeWeight = element(1, Edge),
+  case EdgeWeight < BestWT of
+    true ->
+      NewBestEdge = Edge,
+      NewBestWT = EdgeWeight,
+      {ok, NewTestEdge2, NewNodeState} = nodeFunction:report(NewTestEdge, FindCount, OwnNodeState, InBranch, NewBestWT),
+      {ok, NewTestEdge2, NewNodeState, NewBestEdge, NewBestWT};
+    false ->
+      {ok, NewTestEdge2, NewNodeState} = nodeFunction:report(NewTestEdge, FindCount, OwnNodeState, InBranch, BestWT),
+      {ok, NewTestEdge2, NewNodeState, BestEdge, BestWT}
   end
 .
