@@ -7,3 +7,5 @@ Docs schreiben
     - neues modulübersichtsbild
     - controller erklären -> alles mit rückgabewerten -> controller loopt
     - BestEdge, TestEdge, InBranch erklären.. Reihenfolge der Tupleelemente
+
+- Orddict => key -> {value} ; EdgeNumber -> {NodeName,EdgeState}

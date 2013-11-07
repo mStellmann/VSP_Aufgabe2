@@ -28,11 +28,14 @@
 main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
   receive
     wakeup when OwnNodeState == sleeping ->
+      logging:logMessage(OwnNodeName, "wakeup received"),
       wakeup(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount);
     {initiate, Level, FragName, NodeState, Edge} ->
+      logging:logMessage(OwnNodeName, "initiate message received"),
       {ok, NewInBranch, NewBestEdge, NewBestWT, NewFindCount, NewTestEdge, NewNodeState} = response:initiate(OwnNodeName, Level, FragName, NodeState, Edge, OwnEdgeOrddict, TestEdge, FindCount),
       main(NewNodeState, Level, FragName, OwnEdgeOrddict, OwnNodeName, NewBestEdge, NewBestWT, NewTestEdge, NewInBranch, NewFindCount);
     {test, Level, FragName, Edge} ->
+      logging:logMessage(OwnNodeName, "test message received"),
       case OwnNodeState == sleeping of
         true ->
           wakeup(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount);
@@ -41,12 +44,15 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
           main(NewNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, NewTestEdge, InBranch, FindCount)
       end;
     {accept, Edge} ->
+      logging:logMessage(OwnNodeName, "accept message received"),
       {ok, NewTestEdge, NewNodeState, NewBestEdge, NewBestWT} = response:accept(Edge, BestEdge, BestWT, FindCount, OwnNodeState, InBranch),
       main(NewNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, NewBestEdge, NewBestWT, NewTestEdge, InBranch, FindCount);
     {reject, Edge} ->
+      logging:logMessage(OwnNodeName, "reject message received"),
       {ok, NewEdgeOrddict, NewTestEdge, NewNodeState} = response:reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeName, OwnNodeState, OwnFragName, FindCount, InBranch, BestWT, TestEdge),
       main(NewNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, NewTestEdge, InBranch, FindCount);
     {report, Weight, Edge} ->
+      logging:logMessage(OwnNodeName, "report message received"),
       Response = response:report(Weight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge),
       case Response of
         {ok, NewOwnNodeState, NewOwnEdgeOrddict, NewOwnLevel, NewFindCount, NewBestEdge, NewInBranch, NewBestWT, NewTestEdge} ->
@@ -55,9 +61,11 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
           nodeUtil:exitNode(OwnNodeName)
       end;
     {changeroot, Edge} ->
+      logging:logMessage(OwnNodeName, "changeroot message received"),
       {ok, NewEdgeOrddict} = nodeFunction:changeRoot(OwnEdgeOrddict, OwnLevel, BestEdge),
       main(OwnNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount);
     {connect, Level, Edge} ->
+      logging:logMessage(OwnNodeName, "connect message received"),
       case OwnNodeState == sleeping of
         true ->
           wakeup(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount);
