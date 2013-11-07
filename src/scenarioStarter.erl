@@ -1,17 +1,22 @@
 %%%-------------------------------------------------------------------
-%%% @author Matthias
-%%% @copyright (C) 2013, <COMPANY>
+%%% @author Matthias Stellmann and Grzegorz Markiewicz
+%%% @copyright (C) 2013, HAW Hamburg
 %%% @doc
-%%%
+%%%   This module provides the functionality of the main receive loop.
+%%%   It delegegates most of the functions to the other modules.
+%%% @private
 %%% @end
-%%% Created : 07. Nov 2013 15:42
+%%% Created : 03. Nov 2013
 %%%-------------------------------------------------------------------
 -module(scenarioStarter).
--author("Matthias").
+-author("StellmannMarkiewicz").
 
 %% API
 -export([scenario1/0]).
 
+%%
+%% @doc
+%%  Starts the first scenario with 5 nodes
 scenario1() ->
   mstNode:start(node1),
   mstNode:start(node2),
