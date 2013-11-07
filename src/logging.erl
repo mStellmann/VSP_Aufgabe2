@@ -29,7 +29,7 @@ logMessage(NodeName, Message) ->
 .
 
 logStatus(NodeState, Level, FragName, EdgeOrddict, NodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
-  Message = lists:concat(["[", werkzeug:timeMilliSecond(), "] STATUS: ", NodeName, " NodeState: ", NodeState, " FragmentLevel: ", Level, " FragName: ", FragName, " EdgeOrddict:", EdgeOrddict,
+  Message = werkzeug:list2String(["[", werkzeug:timeMilliSecond(), "] STATUS: ", NodeName, " NodeState: ", NodeState, " FragmentLevel: ", Level, " FragName: ", FragName, " EdgeOrddict:", EdgeOrddict,
     " BestEdge:", BestEdge, " BestWT: ", BestWT, " TestEdge: ", TestEdge, " InBanch: ", InBranch, " FindCount: ", FindCount, "\n"]),
   Filename = lists:concat(["logs/", NodeName, "@", getHostname(), ".log"]),
   werkzeug:logging(Filename, Message)
