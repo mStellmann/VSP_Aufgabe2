@@ -60,7 +60,8 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
           main(OwnNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, NewFindCount)
       end;
     Any ->
-      anythingReceived % TODO logging
+      Message = lists:concat(["Received an unknown message: ", Any]),
+      logging:logMessage(OwnNodeName, Message)
   end
 .
 
