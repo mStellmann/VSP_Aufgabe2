@@ -28,7 +28,7 @@
 main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
   receive
     wakeup when OwnNodeState == sleeping ->
-      logging:logMessage(OwnNodeName, "wakeup received "),
+      logging:logMessage(OwnNodeName, "wakeup received"),
       logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
       wakeup(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount);
     {initiate, Level, FragName, NodeState, Edge} ->
@@ -82,9 +82,10 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
           main(OwnNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, NewFindCount)
       end;
     Any ->
-      Message = lists:concat(["Received an unknown message: ", Any]),
+      Message = lists:concat(["received an unknown message: ", Any]),
       logging:logMessage(OwnNodeName, Message),
-      logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount)
+      logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
+      main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount)
   end
 .
 
