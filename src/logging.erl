@@ -11,7 +11,7 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([logMessage/2, logStatus/9, logDebug/1, logPreStatus/9]).
+-export([logMessage/2, logStatus/9, logDebug/1, logPreStatus/9, logGraph/3]).
 
 %% @private
 %% @doc
@@ -43,5 +43,11 @@ logDebug(Message) ->
 logPreStatus(NodeState, Level, FragName, NodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
   Message = io_lib:format("[PRE MESSAGE STATUS] - ~p | NodeState: ~p | FragmentLevel: ~p | FragName: ~p | BestEdge: ~p | BestWT: ~p | TestEdge: ~p | InBranch: ~p | FindCount: ~p~n", [NodeName, NodeState, Level, FragName, BestEdge, BestWT, TestEdge, InBranch, FindCount]),
   Filename = lists:concat(["logs/log@", getHostname(), ".log"]),
+  werkzeug:logging(Filename, Message)
+.
+
+logGraph(Edge, FragName, Level) ->
+  Message = io_lib:format("~p - ~p -> ~p~n", [element(2, Edge), element(1, Edge), element(3, Edge)]),
+  Filename = lists:concat(["logs/graphs/graph_id@", FragName, "-level@", Level, ".log"]),
   werkzeug:logging(Filename, Message)
 .
