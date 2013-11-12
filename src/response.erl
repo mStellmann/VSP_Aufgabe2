@@ -23,6 +23,7 @@ connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, OtherLevel, Edge, F
   case OtherLevel < OwnLevel of
     true ->
       NewEdgeOrddict = orddict:store(EdgeWeight, {OtherNodeName, branch}, OwnEdgeOrddict),
+      logging:logGraph(Edge, OwnFragName, OwnLevel),
       nodeUtil:sendMessageTo(OtherNodeName, {initiate, OwnLevel, OwnFragName, OwnNodeState, {EdgeWeight, OwnNodeName, OtherNodeName}}),
       case OwnNodeState == find of
         true ->
@@ -39,6 +40,7 @@ connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, OtherLevel, Edge, F
           {ok, OwnEdgeOrddict, FindCount};
         false ->
           NewLevel = OwnLevel + 1,
+          logging:logGraph(Edge, EdgeWeight, NewLevel),
           nodeUtil:sendMessageTo(OtherNodeName, {initiate, NewLevel, EdgeWeight, find, {EdgeWeight, OwnNodeName, OtherNodeName}}),
           {ok, OwnEdgeOrddict, FindCount}
       end
