@@ -27,20 +27,20 @@ connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, OtherLevel, Edge, F
       case OwnNodeState == find of
         true ->
           NewFindCount = FindCount + 1,
-          {ok, NewEdgeOrddict, NewFindCount, OwnFragName, OwnLevel};
+          {ok, NewEdgeOrddict, NewFindCount};
         false ->
-          {ok, NewEdgeOrddict, FindCount, OwnFragName, OwnLevel}
+          {ok, NewEdgeOrddict, FindCount}
       end;
     false ->
       {_, EdgeState} = orddict:find(EdgeWeight, OwnEdgeOrddict),
       case EdgeState == basic of
         true ->
           self() ! {connect, OtherLevel, Edge},
-          {ok, OwnEdgeOrddict, FindCount, OwnFragName, OwnLevel};
+          {ok, OwnEdgeOrddict, FindCount};
         false ->
           NewLevel = OwnLevel + 1,
           nodeUtil:sendMessageTo(OtherNodeName, {initiate, NewLevel, EdgeWeight, find, {EdgeWeight, OwnNodeName, OtherNodeName}}),
-          {ok, OwnEdgeOrddict, FindCount, EdgeWeight, NewLevel}
+          {ok, OwnEdgeOrddict, FindCount}
       end
   end
 .
@@ -73,7 +73,7 @@ rekOrddict(FilteredOrddict, EdgeWeigths, Level, FragName, NodeState, FindCount, 
     true ->
       {ok, FindCount};
     false ->
-      [Head, Tail] = EdgeWeigths,
+      [Head | Tail] = EdgeWeigths,
       Value = orddict:fetch(Head, FilteredOrddict),
       OtherNodeName = element(1, Value),
       NewFindCount = case NodeState == find of
@@ -119,44 +119,33 @@ report(ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCou
   InBranchName = element(1, TestedInBranch),
   case EdgeName /= InBranchName of
     true ->
-      logging:logDebug("EdgeName /= InBranchName (true) "),
       NewFindCount = FindCount - 1,
       case ReportedEdgeWeight < BestWT of
         true ->
-          logging:logDebug("ReportedEdgeWeight < BestWT (true) "),
           NewBestWT = ReportedEdgeWeight,
           NewBestEdge = Edge,
-          {ok, NewTestEdge, NewOwnNodeState} = nodeFunction:report(TestEdge, FindCount, OwnNodeState, InBranch, BestWT),
+          {ok, NewTestEdge, NewOwnNodeState} = nodeFunction:report(TestEdge, FindCount, OwnNodeState, InBranch, NewBestWT),
           {ok, NewOwnNodeState, OwnEdgeOrddict, OwnLevel, NewFindCount, NewBestEdge, InBranch, NewBestWT, NewTestEdge};
         false ->
-          logging:logDebug("ReportedEdgeWeight < BestWT (false) "),
-          %% differece between pseudo-code and erlang ( BesWT and BestEdge returned )
           {ok, NewTestEdge, NewOwnNodeState} = nodeFunction:report(TestEdge, FindCount, OwnNodeState, InBranch, BestWT),
           {ok, NewOwnNodeState, OwnEdgeOrddict, OwnLevel, NewFindCount, BestEdge, InBranch, BestWT, NewTestEdge}
       end;
     false ->
-      logging:logDebug("EdgeName /= InBranchName (false) "),
       case OwnNodeState == find of
         true ->
-          logging:logDebug("OwnNodeState == find (true) "),
-          self ! {report, ReportedEdgeWeight, Edge},
+          self() ! {report, ReportedEdgeWeight, Edge},
           {ok, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
         false ->
-          logging:logDebug("OwnNodeState == find (false) "),
           case ReportedEdgeWeight > BestWT of
             true ->
-              logging:logDebug("ReportedEdgeWeight > BestWT (true) "),
               {ok, NewEdgeOrddict} = nodeFunction:changeRoot(OwnEdgeOrddict, OwnLevel, BestEdge),
               {ok, OwnNodeState, NewEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
             false ->
-              logging:logDebug("ReportedEdgeWeight > BestWT (false) "),
               case ReportedEdgeWeight == BestWT andalso BestWT == infinity of
                 true ->
-                  logging:logDebug("ReportedEdgeWeight == BestWT andalso BestWT == infinity (true) "),
                   %% in case of more information on exit: {halt, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
                   {halt};
                 false ->
-                  logging:logDebug("ReportedEdgeWeight == BestWT andalso BestWT == infinity (false) "),
                   {ok, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge}
               end
           end

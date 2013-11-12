@@ -43,7 +43,9 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
       logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
       case OwnNodeState == sleeping of
         true ->
-          wakeup(OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch);
+          {ok, NewEdgeOrddict} = nodeFunction:wakeup(OwnEdgeOrddict, OwnNodeName),
+          {ok, NewEdgeOrddict2, NewTestEdge, NewNodeState} = response:test(OwnLevel, OwnNodeState, OwnFragName, NewEdgeOrddict, Level, FragName, Edge, TestEdge, FindCount, InBranch, BestWT),
+          main(NewNodeState, 0, OwnFragName, NewEdgeOrddict2, OwnNodeName, BestEdge, BestWT, NewTestEdge, InBranch, FindCount);
         false ->
           {ok, NewEdgeOrddict, NewTestEdge, NewNodeState} = response:test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge, TestEdge, FindCount, InBranch, BestWT),
           main(NewNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, NewTestEdge, InBranch, FindCount)
@@ -83,10 +85,12 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
       logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
       case OwnNodeState == sleeping of
         true ->
-          wakeup(OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch);
+          {ok, NewEdgeOrddict} = nodeFunction:wakeup(OwnEdgeOrddict, OwnNodeName),
+          {ok, NewEdgeOrddict2, NewFindCount} = response:connect(0, NewEdgeOrddict, OwnFragName, found, Level, Edge, 0),
+          main(found, 0, OwnFragName, NewEdgeOrddict2, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, NewFindCount);
         false ->
-          {ok, NewEdgeOrddict, NewFindCount, NewFragName, NewLevel} = response:connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, Level, Edge, FindCount),
-          main(OwnNodeState, NewLevel, NewFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, NewFindCount)
+          {ok, NewEdgeOrddict, NewFindCount} = response:connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, Level, Edge, FindCount),
+          main(OwnNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, NewFindCount)
       end;
 
     Any ->
