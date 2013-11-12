@@ -177,7 +177,7 @@ test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge,
           case EdgeState == basic of
             true ->
               NewEdgeOrddict = orddict:store(EdgeWeight, {OtherNodeName, rejected}, OwnEdgeOrddict),
-              case SendingEdge /= TestEdge of
+              case element(1, SendingEdge) /= element(1, TestEdge) of
                 true ->
                   nodeUtil:sendMessageTo(OtherNodeName, {reject, SendingEdge}),
                   {ok, NewEdgeOrddict, TestEdge, OwnNodeState};
@@ -186,14 +186,7 @@ test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge,
                   {ok, NewEdgeOrddict, NewTestEdge, NewNodeState}
               end;
             false ->
-              case SendingEdge /= TestEdge of
-                true ->
-                  nodeUtil:sendMessageTo(OtherNodeName, {reject, SendingEdge}),
-                  {ok, OwnEdgeOrddict, TestEdge, OwnNodeState};
-                false ->
-                  {ok, NewTestEdge, NewNodeState} = nodeFunction:test(OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, OwnNodeName, FindCount, InBranch, BestWT),
-                  {ok, OwnEdgeOrddict, NewTestEdge, NewNodeState}
-              end
+              {ok, OwnEdgeOrddict, TestEdge, OwnNodeState}
           end
       end
   end

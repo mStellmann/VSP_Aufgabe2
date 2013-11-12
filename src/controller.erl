@@ -44,8 +44,8 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
       case OwnNodeState == sleeping of
         true ->
           {ok, NewEdgeOrddict} = nodeFunction:wakeup(OwnEdgeOrddict, OwnNodeName),
-          {ok, NewEdgeOrddict2, NewTestEdge, NewNodeState} = response:test(OwnLevel, OwnNodeState, OwnFragName, NewEdgeOrddict, Level, FragName, Edge, TestEdge, FindCount, InBranch, BestWT),
-          main(NewNodeState, 0, OwnFragName, NewEdgeOrddict2, OwnNodeName, BestEdge, BestWT, NewTestEdge, InBranch, FindCount);
+          {ok, NewEdgeOrddict2, NewTestEdge, NewNodeState} = response:test(0, found, OwnFragName, NewEdgeOrddict, Level, FragName, Edge, TestEdge, 0, InBranch, BestWT),
+          main(NewNodeState, 0, OwnFragName, NewEdgeOrddict2, OwnNodeName, BestEdge, BestWT, NewTestEdge, InBranch, 0);
         false ->
           {ok, NewEdgeOrddict, NewTestEdge, NewNodeState} = response:test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge, TestEdge, FindCount, InBranch, BestWT),
           main(NewNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, NewTestEdge, InBranch, FindCount)
