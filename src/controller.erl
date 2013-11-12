@@ -26,6 +26,7 @@
 %%    Edge:           The edge this node tries to connect trough
 %%    FindCount:      TODO
 main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
+  logging:logPreStatus(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
   receive
     wakeup when OwnNodeState == sleeping ->
       logging:logMessage(OwnNodeName, "wakeup received"),
