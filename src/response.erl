@@ -84,6 +84,7 @@ rekOrddict(FilteredOrddict, EdgeWeigths, Level, FragName, NodeState, FindCount, 
                        false ->
                          FindCount
                      end,
+      logging:logGraph({Head, OtherNodeName, OwnNodeName}, FragName, Level),
       nodeUtil:sendMessageTo(OtherNodeName, {initiate, Level, FragName, NodeState, {Head, OwnNodeName, OtherNodeName}}),
       rekOrddict(FilteredOrddict, Tail, Level, FragName, NodeState, NewFindCount, OwnNodeName)
   end

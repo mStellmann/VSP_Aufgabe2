@@ -33,5 +33,6 @@ sendMessageTo(OtherNodeName, Message) ->
 %%  This Function exits the current node and log it.
 exitNode(OwnNodeName) ->
   logging:logMessage(OwnNodeName, "Shutting down!"),
+  %% TODO -> GRAPHEN AUSGEBEN
   erlang:exit("EndOfLife")
 .
