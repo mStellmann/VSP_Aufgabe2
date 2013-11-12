@@ -100,7 +100,7 @@ reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeName, OwnNodeState, OwnFragName, F
   case EdgeState == basic of
     true ->
       NewEdgeOrddict = orddict:store(EdgeWeight, {EdgeName, rejected}, OwnEdgeOrddict),
-      {ok, NewTestEdge, NewNodeState} = nodeFunction:test(OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, OwnNodeName, FindCount, InBranch, BestWT),
+      {ok, NewTestEdge, NewNodeState} = nodeFunction:test(NewEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, OwnNodeName, FindCount, InBranch, BestWT),
       {ok, NewEdgeOrddict, NewTestEdge, NewNodeState};
     false ->
       {ok, OwnEdgeOrddict, TestEdge, OwnNodeState}

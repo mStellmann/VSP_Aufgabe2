@@ -34,5 +34,6 @@ sendMessageTo(OtherNodeName, Message) ->
 exitNode(OwnNodeName) ->
   logging:logMessage(OwnNodeName, "Shutting down!"),
   %% TODO -> GRAPHEN AUSGEBEN
+  %% TODO -> EXIT AN ALLE SCHICKEN
   erlang:exit("EndOfLife")
 .

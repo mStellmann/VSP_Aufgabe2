@@ -12,7 +12,7 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([scenario1/0, scenario2/0]).
+-export([scenario1/0, scenario2/0, scenario3/0]).
 
 
 %% @doc
@@ -35,4 +35,13 @@ scenario2() ->
   mstNode:start(node5, 2),
   mstNode:start(node6, 2),
   mstNode:start(node0, 2)
+.
+
+%% @doc
+%%  Starts the second scenario with 7 nodes (Aufgabenblatt)
+scenario3() ->
+  mstNode:start(node1, 3),
+  mstNode:start(node2, 3),
+  mstNode:start(node3, 3),
+  mstNode:start(node0, 3)
 .
