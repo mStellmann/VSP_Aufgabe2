@@ -43,7 +43,8 @@ test(OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragname, OwnNodeName, FindCount
   BasicEdgeOrddict = orddict:filter(fun(_, Val) -> element(2, Val) == basic end, OwnEdgeOrddict),
   case BasicEdgeOrddict == [] of
     true ->
-      report(nil, FindCount, OwnNodeState, InBranch, BestWT);
+      Result = report(nil, FindCount, OwnNodeState, InBranch, BestWT),
+      Result;
     false ->
       EdgeWeights = orddict:fetch_keys(BasicEdgeOrddict),
       TestEdgeWeight = lists:min(EdgeWeights),

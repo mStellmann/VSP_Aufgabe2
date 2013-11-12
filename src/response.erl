@@ -32,7 +32,7 @@ connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, OtherLevel, Edge, F
           {ok, NewEdgeOrddict, FindCount}
       end;
     false ->
-      {_, EdgeState} = orddict:find(EdgeWeight, OwnEdgeOrddict),
+      {_, EdgeState} = orddict:fetch(EdgeWeight, OwnEdgeOrddict),
       case EdgeState == basic of
         true ->
           self() ! {connect, OtherLevel, Edge},
@@ -110,13 +110,7 @@ reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeName, OwnNodeState, OwnFragName, F
 %%    Edge: Edge the message originates from
 report(ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge) ->
   EdgeName = element(1, Edge),
-  TestedInBranch = case InBranch == nil of
-                     true ->
-                       {-1, nil, nil};
-                     false ->
-                       InBranch
-                   end,
-  InBranchName = element(1, TestedInBranch),
+  InBranchName = element(1, InBranch),
   case EdgeName /= InBranchName of
     true ->
       NewFindCount = FindCount - 1,
