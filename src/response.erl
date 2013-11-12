@@ -27,20 +27,20 @@ connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, OtherLevel, Edge, F
       case OwnNodeState == find of
         true ->
           NewFindCount = FindCount + 1,
-          {ok, NewEdgeOrddict, NewFindCount};
+          {ok, NewEdgeOrddict, NewFindCount, OwnFragName, OwnLevel};
         false ->
-          {ok, NewEdgeOrddict, FindCount}
+          {ok, NewEdgeOrddict, FindCount, OwnFragName, OwnLevel}
       end;
     false ->
       {_, EdgeState} = orddict:find(EdgeWeight, OwnEdgeOrddict),
       case EdgeState == basic of
         true ->
           self() ! {connect, OtherLevel, Edge},
-          {ok, OwnEdgeOrddict, FindCount};
+          {ok, OwnEdgeOrddict, FindCount, OwnFragName, OwnLevel};
         false ->
           NewLevel = OwnLevel + 1,
           nodeUtil:sendMessageTo(OtherNodeName, {initiate, NewLevel, EdgeWeight, find, {EdgeWeight, OwnNodeName, OtherNodeName}}),
-          {ok, OwnEdgeOrddict, FindCount}
+          {ok, OwnEdgeOrddict, FindCount, EdgeWeight, NewLevel}
       end
   end
 .
@@ -76,7 +76,6 @@ rekOrddict(FilteredOrddict, EdgeWeigths, Level, FragName, NodeState, FindCount, 
       [Head, Tail] = EdgeWeigths,
       Value = orddict:fetch(Head, FilteredOrddict),
       OtherNodeName = element(1, Value),
-      NodeState = element(2, Value),
       NewFindCount = case NodeState == find of
                        true ->
                          FindCount + 1;
@@ -111,7 +110,13 @@ reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeName, OwnNodeState, OwnFragName, F
 %%    Edge: Edge the message originates from
 report(ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge) ->
   EdgeName = element(1, Edge),
-  InBranchName = element(1, InBranch),
+  TestedInBranch = case InBranch == nil of
+                     true ->
+                       {-1, nil, nil};
+                     false ->
+                       InBranch
+                   end,
+  InBranchName = element(1, TestedInBranch),
   case EdgeName /= InBranchName of
     true ->
       logging:logDebug("EdgeName /= InBranchName (true) "),

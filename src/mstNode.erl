@@ -10,14 +10,14 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([start/1]).
+-export([start/2]).
 
 %% @doc
 %%  This function starts a node in the sleeping state.
 %%  Nodename:   Name of the node as a String
-start(Nodename) ->
+start(Nodename, Scenario) ->
   % nodeUtil:findGlobalHosts(),
-  Filepath = lists:concat(["nodeconfigs/", Nodename, ".cfg"]),
+  Filepath = lists:concat(["nodeconfigs/scenario", Scenario, "/", Nodename, ".cfg"]),
   {ok, EdgeList} = file:consult(Filepath),
   EdgeOrddict = createEdgeOrddict(EdgeList, orddict:new()),
   %% OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount

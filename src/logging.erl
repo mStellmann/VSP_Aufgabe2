@@ -24,15 +24,14 @@ getHostname() ->
 %% @doc
 %%  The Function logs the given Message into a .log-File and writes it on the console.
 logMessage(NodeName, Message) ->
-  Filename = lists:concat(["logs/", NodeName, "@", getHostname(), ".log"]),
+  Filename = lists:concat(["logs/log@", getHostname(), ".log"]),
   werkzeug:logging(Filename, lists:concat(["[", werkzeug:timeMilliSecond(), "] ", NodeName, " - ", Message, "\n"]))
 .
 
 logStatus(NodeState, Level, FragName, NodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
-  % Message = lists:concat(["[", werkzeug:timeMilliSecond(), "] STATUS: ", NodeName, " | NodeState: ", NodeState, " | FragmentLevel: ", Level, " | FragName: ", FragName, " | BestEdge: ", BestEdge, " | BestWT: ", BestWT, " | TestEdge: ", TestEdge, " | InBanch: ", InBranch, " | FindCount: ", FindCount, "\n"]),
-  % Filename = lists:concat(["logs/", NodeName, "@", getHostname(), ".log"]),
-  % werkzeug:logging(Filename, Message)
-  doNothing
+  Message = io_lib:format("[STATUS] - ~p | NodeState: ~p | FragmentLevel: ~p | FragName: ~p | BestEdge: ~p | BestWT: ~p | TestEdge: ~p | InBranch: ~p | FindCount: ~p~n", [NodeName, NodeState, Level, FragName, BestEdge, BestWT, TestEdge, InBranch, FindCount]),
+  Filename = lists:concat(["logs/log@", getHostname(), ".log"]),
+  werkzeug:logging(Filename, Message)
 .
 
 logDebug(Message) ->
