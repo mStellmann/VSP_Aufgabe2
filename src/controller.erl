@@ -24,7 +24,7 @@
 %%    OwnNodeState:   The state of this node (sleeping,find,found)
 %%    Otherlevel:     The level of the fragment of the node this node tries to connect to
 %%    Edge:           The edge this node tries to connect trough
-%%    FindCount:      TODO
+%%    FindCount:      TODO doc
 main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
   logging:logPreStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
   receive
@@ -61,7 +61,7 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
     {reject, Edge} ->
       logging:logMessage(OwnNodeName, io_lib:format("reject message received | Edge: ~p", [element(1, Edge)])),
       logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
-      {ok, NewEdgeOrddict, NewTestEdge, NewNodeState} = response:reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeName, OwnNodeState, OwnFragName, FindCount, InBranch, BestWT, TestEdge),
+      {ok, NewEdgeOrddict, NewTestEdge, NewNodeState} = response:reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeName, OwnNodeState, OwnFragName, FindCount, InBranch, BestWT),
       main(NewNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, NewTestEdge, InBranch, FindCount);
 
     {report, Weight, Edge} ->

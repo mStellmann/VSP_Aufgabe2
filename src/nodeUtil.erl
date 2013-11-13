@@ -11,7 +11,7 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([sendMessageTo/2, exitNode/1, findGlobalHosts/0]).
+-export([sendMessageTo/2, exitNode/1, findGlobalHosts/0, infinity/0]).
 
 findGlobalHosts() ->
   {ok, Hostlist} = file:consult("config/hosts.cfg"),
@@ -28,6 +28,10 @@ sendMessageTo(OtherNodeName, Message) ->
   % OtherNodePID = global:whereis_name(OtherNodeName),
   OtherNodePID ! Message
 .
+
+%% @doc
+%%  TODO doc
+infinity() -> 1234567890.
 
 %% @doc
 %%  This Function exits the current node and log it.

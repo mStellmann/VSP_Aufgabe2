@@ -11,7 +11,7 @@
 -author("StellmannMarkiewicz").
 
 %% API
--export([connect/7, initiate/8, reject/10, test/11, accept/6, report/10]).
+-export([connect/7, initiate/8, reject/9, test/11, accept/6, report/10]).
 
 %% @doc
 %%  This function is in charge of figuring out, if a connect message should be send.
@@ -25,51 +25,50 @@ connect(OwnLevel, OwnEdgeOrddict, OwnFragName, OwnNodeState, OtherLevel, Edge, F
       NewEdgeOrddict = orddict:store(EdgeWeight, {OtherNodeName, branch}, OwnEdgeOrddict),
       logging:logGraph(Edge, OwnFragName, OwnLevel),
       nodeUtil:sendMessageTo(OtherNodeName, {initiate, OwnLevel, OwnFragName, OwnNodeState, {EdgeWeight, OwnNodeName, OtherNodeName}}),
-      case OwnNodeState == find of
-        true ->
-          NewFindCount = FindCount + 1,
-          {ok, NewEdgeOrddict, NewFindCount};
-        false ->
-          {ok, NewEdgeOrddict, FindCount}
-      end;
+      NewFindCount = case OwnNodeState == find of
+                       true ->
+                         FindCount + 1;
+                       false ->
+                         FindCount
+                     end,
+      {ok, NewEdgeOrddict, NewFindCount};
     false ->
       {_, EdgeState} = orddict:fetch(EdgeWeight, OwnEdgeOrddict),
       case EdgeState == basic of
         true ->
-          self() ! {connect, OtherLevel, Edge},
-          {ok, OwnEdgeOrddict, FindCount};
+          self() ! {connect, OtherLevel, Edge};
         false ->
           NewLevel = OwnLevel + 1,
           logging:logGraph(Edge, EdgeWeight, NewLevel),
-          nodeUtil:sendMessageTo(OtherNodeName, {initiate, NewLevel, EdgeWeight, find, {EdgeWeight, OwnNodeName, OtherNodeName}}),
-          {ok, OwnEdgeOrddict, FindCount}
-      end
+          nodeUtil:sendMessageTo(OtherNodeName, {initiate, NewLevel, EdgeWeight, find, {EdgeWeight, OwnNodeName, OtherNodeName}})
+      end,
+      {ok, OwnEdgeOrddict, FindCount}
   end
 .
 
 %%  @doc
-%% TODO
+%% TODO doc
 %%  GlobalVars: {BestEdge, BestWT, TestEdge, InBranch, FindCount}
 initiate(OwnNodeName, Level, FragName, NodeState, Edge, EdgeOrddict, TestEdge, FindCount) ->
   InBranch = Edge,
   BestEdge = nil,
-  BestWT = infinity,
+  BestWT = nodeUtil:infinity(),
   FilteredOrddict = orddict:filter(fun(Key, Value) ->
     Key /= element(1, Edge) andalso element(2, Value) == branch end, EdgeOrddict),
   EdgeWeigths = orddict:fetch_keys(FilteredOrddict),
   {ok, NewFindCount} = rekOrddict(FilteredOrddict, EdgeWeigths, Level, FragName, NodeState, FindCount, OwnNodeName),
-  case NodeState == find of
-    true ->
-      {ok, NewTestEdge, NewNodeState} = nodeFunction:test(EdgeOrddict, Level, NodeState, FragName, OwnNodeName, NewFindCount, InBranch, BestWT),
-      {ok, InBranch, BestEdge, BestWT, NewFindCount, NewTestEdge, NewNodeState};
-    false ->
-      {ok, InBranch, BestEdge, BestWT, NewFindCount, TestEdge, NodeState}
-  end
+  {ok, NewTestEdge, NewNodeState} = case NodeState == find of
+                                      true ->
+                                        nodeFunction:test(EdgeOrddict, Level, NodeState, FragName, OwnNodeName, NewFindCount, InBranch, BestWT);
+                                      false ->
+                                        {ok, TestEdge, NodeState}
+                                    end,
+  {ok, InBranch, BestEdge, BestWT, NewFindCount, NewTestEdge, NewNodeState}
 .
 
 %% @private
 %% @doc
-%%  TODO
+%%  TODO doc
 rekOrddict(FilteredOrddict, EdgeWeigths, Level, FragName, NodeState, FindCount, OwnNodeName) ->
   case EdgeWeigths == [] of
     true ->
@@ -91,24 +90,24 @@ rekOrddict(FilteredOrddict, EdgeWeigths, Level, FragName, NodeState, FindCount, 
 .
 
 %% @doc
-%%  TODO
-reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeName, OwnNodeState, OwnFragName, FindCount, InBranch, BestWT, TestEdge) ->
+%%  TODO doc
+reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeName, OwnNodeState, OwnFragName, FindCount, InBranch, BestWT) ->
   EdgeWeight = element(1, Edge),
   EdgeValue = orddict:fetch(EdgeWeight, OwnEdgeOrddict),
   EdgeName = element(1, EdgeValue),
   EdgeState = element(2, EdgeValue),
-  case EdgeState == basic of
-    true ->
-      NewEdgeOrddict = orddict:store(EdgeWeight, {EdgeName, rejected}, OwnEdgeOrddict),
-      {ok, NewTestEdge, NewNodeState} = nodeFunction:test(NewEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, OwnNodeName, FindCount, InBranch, BestWT),
-      {ok, NewEdgeOrddict, NewTestEdge, NewNodeState};
-    false ->
-      {ok, OwnEdgeOrddict, TestEdge, OwnNodeState}
-  end
+  NewEdgeOrddict = case EdgeState == basic of
+                     true ->
+                       orddict:store(EdgeWeight, {EdgeName, rejected}, OwnEdgeOrddict);
+                     false ->
+                       OwnEdgeOrddict
+                   end,
+  {ok, NewTestEdge, NewNodeState} = nodeFunction:test(NewEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, OwnNodeName, FindCount, InBranch, BestWT),
+  {ok, NewEdgeOrddict, NewTestEdge, NewNodeState}
 .
 
 %% @doc
-%%  TODO
+%%  TODO doc
 %%    ReportedEdgeWeight: The weigt of the reported best Edge
 %%    Edge: Edge the message originates from
 report(ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge) ->
@@ -117,16 +116,14 @@ report(ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCou
   case EdgeName /= InBranchName of
     true ->
       NewFindCount = FindCount - 1,
-      case ReportedEdgeWeight < BestWT of
-        true ->
-          NewBestWT = ReportedEdgeWeight,
-          NewBestEdge = Edge,
-          {ok, NewTestEdge, NewOwnNodeState} = nodeFunction:report(TestEdge, FindCount, OwnNodeState, InBranch, NewBestWT),
-          {ok, NewOwnNodeState, OwnEdgeOrddict, OwnLevel, NewFindCount, NewBestEdge, InBranch, NewBestWT, NewTestEdge};
-        false ->
-          {ok, NewTestEdge, NewOwnNodeState} = nodeFunction:report(TestEdge, FindCount, OwnNodeState, InBranch, BestWT),
-          {ok, NewOwnNodeState, OwnEdgeOrddict, OwnLevel, NewFindCount, BestEdge, InBranch, BestWT, NewTestEdge}
-      end;
+      {NewBestWT, NewBestEdge} = case ReportedEdgeWeight < BestWT of
+                                   true ->
+                                     {ReportedEdgeWeight, Edge};
+                                   false ->
+                                     {BestWT, BestEdge}
+                                 end,
+      {ok, NewTestEdge, NewOwnNodeState} = nodeFunction:report(TestEdge, FindCount, OwnNodeState, InBranch, NewBestWT),
+      {ok, NewOwnNodeState, OwnEdgeOrddict, OwnLevel, NewFindCount, NewBestEdge, InBranch, NewBestWT, NewTestEdge};
     false ->
       case OwnNodeState == find of
         true ->
@@ -138,7 +135,7 @@ report(ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCou
               {ok, NewEdgeOrddict} = nodeFunction:changeRoot(OwnEdgeOrddict, OwnLevel, BestEdge),
               {ok, OwnNodeState, NewEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
             false ->
-              case ReportedEdgeWeight == BestWT andalso BestWT == infinity of
+              case ReportedEdgeWeight == BestWT andalso BestWT == nodeUtil:infinity() of
                 true ->
                   %% in case of more information on exit: {halt, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
                   {halt};
@@ -151,7 +148,7 @@ report(ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCou
 .
 
 %% @doc
-%%  TODO
+%%  TODO doc
 %%  returns:
 %%    {ok, NewEdgeOrddict, NewTestEdge, NewNodeState}
 test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge, TestEdge, FindCount, InBranch, BestWT) ->
@@ -171,19 +168,19 @@ test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge,
           {ok, OwnEdgeOrddict, TestEdge, OwnNodeState};
         false ->
           {_, EdgeState} = orddict:fetch(EdgeWeight, OwnEdgeOrddict),
-          case EdgeState == basic of
+          NewEdgeOrddict = case EdgeState == basic of
+                             true ->
+                               orddict:store(EdgeWeight, {OtherNodeName, rejected}, OwnEdgeOrddict);
+                             false ->
+                               OwnEdgeOrddict
+                           end,
+          case element(1, Edge) /= element(1, TestEdge) of
             true ->
-              NewEdgeOrddict = orddict:store(EdgeWeight, {OtherNodeName, rejected}, OwnEdgeOrddict),
-              case element(1, SendingEdge) /= element(1, TestEdge) of
-                true ->
-                  nodeUtil:sendMessageTo(OtherNodeName, {reject, SendingEdge}),
-                  {ok, NewEdgeOrddict, TestEdge, OwnNodeState};
-                false ->
-                  {ok, NewTestEdge, NewNodeState} = nodeFunction:test(NewEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, OwnNodeName, FindCount, InBranch, BestWT),
-                  {ok, NewEdgeOrddict, NewTestEdge, NewNodeState}
-              end;
+              nodeUtil:sendMessageTo(OtherNodeName, {reject, SendingEdge}),
+              {ok, NewEdgeOrddict, TestEdge, OwnNodeState};
             false ->
-              {ok, OwnEdgeOrddict, TestEdge, OwnNodeState}
+              {ok, NewTestEdge, NewNodeState} = nodeFunction:test(NewEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, OwnNodeName, FindCount, InBranch, BestWT),
+              {ok, NewEdgeOrddict, NewTestEdge, NewNodeState}
           end
       end
   end
@@ -196,14 +193,12 @@ test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge,
 accept(Edge, BestEdge, BestWT, FindCount, OwnNodeState, InBranch) ->
   NewTestEdge = nil,
   EdgeWeight = element(1, Edge),
-  case EdgeWeight < BestWT of
-    true ->
-      NewBestEdge = Edge,
-      NewBestWT = EdgeWeight,
-      {ok, NewTestEdge2, NewNodeState} = nodeFunction:report(NewTestEdge, FindCount, OwnNodeState, InBranch, NewBestWT),
-      {ok, NewTestEdge2, NewNodeState, NewBestEdge, NewBestWT};
-    false ->
-      {ok, NewTestEdge2, NewNodeState} = nodeFunction:report(NewTestEdge, FindCount, OwnNodeState, InBranch, BestWT),
-      {ok, NewTestEdge2, NewNodeState, BestEdge, BestWT}
-  end
+  {NewBestEdge, NewBestWT} = case EdgeWeight < BestWT of
+                               true ->
+                                 {Edge, EdgeWeight};
+                               false ->
+                                 {BestEdge, BestWT}
+                             end,
+  {ok, NewTestEdge2, NewNodeState} = nodeFunction:report(NewTestEdge, FindCount, OwnNodeState, InBranch, NewBestWT),
+  {ok, NewTestEdge2, NewNodeState, NewBestEdge, NewBestWT}
 .

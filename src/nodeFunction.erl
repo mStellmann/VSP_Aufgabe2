@@ -18,9 +18,6 @@
 %%  It searches for the akmg and sends the connect msg to the node
 %%  on the opposite side of the akmg. Afterwards the node changes into
 %%  the sleeping state and waits for a response from the other node.
-%%    EdgeOrddict:  Orddict where the key is the EdgeWeight and value
-%%                  is a tuple {OtherNodeName,EdgeState}
-%%    OwnNodeName:  The system known name of our own node
 wakeup(EdgeOrddict, OwnNodeName) ->
   EdgeWeights = orddict:fetch_keys(EdgeOrddict),
   AkmgWeight = lists:min(EdgeWeights),
@@ -41,10 +38,10 @@ wakeup(EdgeOrddict, OwnNodeName) ->
 %%    {ok, NewTestEdge, OwnNodeState} if a test-edge is found
 test(OwnEdgeOrddict, OwnLevel, OwnNodeState, OwnFragname, OwnNodeName, FindCount, InBranch, BestWT) ->
   BasicEdgeOrddict = orddict:filter(fun(_, Val) -> element(2, Val) == basic end, OwnEdgeOrddict),
-  case BasicEdgeOrddict == [] of
+  EdgeOrddictSize = orddict:size(BasicEdgeOrddict),
+  case EdgeOrddictSize == 0 of
     true ->
-      Result = report(nil, FindCount, OwnNodeState, InBranch, BestWT),
-      Result;
+      report(nil, FindCount, OwnNodeState, InBranch, BestWT);
     false ->
       EdgeWeights = orddict:fetch_keys(BasicEdgeOrddict),
       TestEdgeWeight = lists:min(EdgeWeights),
