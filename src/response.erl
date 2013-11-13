@@ -77,14 +77,14 @@ rekOrddict(FilteredOrddict, EdgeWeigths, Level, FragName, NodeState, FindCount, 
       [Head | Tail] = EdgeWeigths,
       Value = orddict:fetch(Head, FilteredOrddict),
       OtherNodeName = element(1, Value),
+      logging:logGraph({Head, OtherNodeName, OwnNodeName}, FragName, Level),
+      nodeUtil:sendMessageTo(OtherNodeName, {initiate, Level, FragName, NodeState, {Head, OwnNodeName, OtherNodeName}}),
       NewFindCount = case NodeState == find of
                        true ->
                          FindCount + 1;
                        false ->
                          FindCount
                      end,
-      logging:logGraph({Head, OtherNodeName, OwnNodeName}, FragName, Level),
-      nodeUtil:sendMessageTo(OtherNodeName, {initiate, Level, FragName, NodeState, {Head, OwnNodeName, OtherNodeName}}),
       rekOrddict(FilteredOrddict, Tail, Level, FragName, NodeState, NewFindCount, OwnNodeName)
   end
 .
@@ -122,7 +122,7 @@ report(ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCou
                                    false ->
                                      {BestWT, BestEdge}
                                  end,
-      {ok, NewTestEdge, NewOwnNodeState} = nodeFunction:report(TestEdge, FindCount, OwnNodeState, InBranch, NewBestWT),
+      {ok, NewTestEdge, NewOwnNodeState} = nodeFunction:report(TestEdge, NewFindCount, OwnNodeState, InBranch, NewBestWT),
       {ok, NewOwnNodeState, OwnEdgeOrddict, OwnLevel, NewFindCount, NewBestEdge, InBranch, NewBestWT, NewTestEdge};
     false ->
       case OwnNodeState == find of
@@ -191,7 +191,6 @@ test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge,
 %%  returns:
 %%    {ok, NewTestEdge, NewNodeState, NewBestEdge, NewBestWT}
 accept(Edge, BestEdge, BestWT, FindCount, OwnNodeState, InBranch) ->
-  NewTestEdge = nil,
   EdgeWeight = element(1, Edge),
   {NewBestEdge, NewBestWT} = case EdgeWeight < BestWT of
                                true ->
@@ -199,6 +198,6 @@ accept(Edge, BestEdge, BestWT, FindCount, OwnNodeState, InBranch) ->
                                false ->
                                  {BestEdge, BestWT}
                              end,
-  {ok, NewTestEdge2, NewNodeState} = nodeFunction:report(NewTestEdge, FindCount, OwnNodeState, InBranch, NewBestWT),
-  {ok, NewTestEdge2, NewNodeState, NewBestEdge, NewBestWT}
+  {ok, NewTestEdge, NewNodeState} = nodeFunction:report(nil, FindCount, OwnNodeState, InBranch, NewBestWT),
+  {ok, NewTestEdge, NewNodeState, NewBestEdge, NewBestWT}
 .

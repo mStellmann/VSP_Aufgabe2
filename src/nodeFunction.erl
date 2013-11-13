@@ -83,13 +83,13 @@ changeRoot(OwnEdgeOrddict, OwnLevel, BestEdge) ->
   OwnNodeName = element(3, BestEdge),
   SendEdge = {EdgeWeight, OwnNodeName, ReceiveNode},
   {_, EdgeState} = orddict:fetch(EdgeWeight, OwnEdgeOrddict),
-  case EdgeState == branch of
-    true ->
-      nodeUtil:sendMessageTo(ReceiveNode, {changeroot, SendEdge}),
-      {ok, OwnEdgeOrddict};
-    false ->
-      nodeUtil:sendMessageTo(ReceiveNode, {connect, OwnLevel, SendEdge}),
-      NewEdgeOrddict = orddict:store(EdgeWeight, {ReceiveNode, branch}, OwnEdgeOrddict),
-      {ok, NewEdgeOrddict}
-  end
+  NewEdgeOrddict = case EdgeState == branch of
+                     true ->
+                       nodeUtil:sendMessageTo(ReceiveNode, {changeroot, SendEdge}),
+                       OwnEdgeOrddict;
+                     false ->
+                       nodeUtil:sendMessageTo(ReceiveNode, {connect, OwnLevel, SendEdge}),
+                       orddict:store(EdgeWeight, {ReceiveNode, branch}, OwnEdgeOrddict)
+                   end,
+  {ok, NewEdgeOrddict}
 .

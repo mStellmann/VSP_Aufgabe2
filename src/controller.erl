@@ -26,22 +26,22 @@
 %%    Edge:           The edge this node tries to connect trough
 %%    FindCount:      TODO doc
 main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
-  logging:logPreStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
+  % logging:logPreStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
   receive
     wakeup when OwnNodeState == sleeping ->
       logging:logMessage(OwnNodeName, "wakeup received"),
-      logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
+      %   logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
       wakeup(OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch);
 
     {initiate, Level, FragName, NodeState, Edge} ->
       logging:logMessage(OwnNodeName, io_lib:format("initiate message received | Level: ~p | FragName: ~p | NodeState: ~p | Edge: ~p", [Level, FragName, NodeState, element(1, Edge)])),
-      logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
+      %  logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
       {ok, NewInBranch, NewBestEdge, NewBestWT, NewFindCount, NewTestEdge, NewNodeState} = response:initiate(OwnNodeName, Level, FragName, NodeState, Edge, OwnEdgeOrddict, TestEdge, FindCount),
       main(NewNodeState, Level, FragName, OwnEdgeOrddict, OwnNodeName, NewBestEdge, NewBestWT, NewTestEdge, NewInBranch, NewFindCount);
 
     {test, Level, FragName, Edge} ->
       logging:logMessage(OwnNodeName, io_lib:format("test message received | Level: ~p | FragName: ~p | Edge: ~p", [Level, FragName, element(1, Edge)])),
-      logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
+      %  logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
       case OwnNodeState == sleeping of
         true ->
           {ok, NewEdgeOrddict} = nodeFunction:wakeup(OwnEdgeOrddict, OwnNodeName),
@@ -54,13 +54,13 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
 
     {accept, Edge} ->
       logging:logMessage(OwnNodeName, io_lib:format("accept message received | Edge: ~p", [element(1, Edge)])),
-      logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
+      % logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
       {ok, NewTestEdge, NewNodeState, NewBestEdge, NewBestWT} = response:accept(Edge, BestEdge, BestWT, FindCount, OwnNodeState, InBranch),
       main(NewNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, NewBestEdge, NewBestWT, NewTestEdge, InBranch, FindCount);
 
     {reject, Edge} ->
       logging:logMessage(OwnNodeName, io_lib:format("reject message received | Edge: ~p", [element(1, Edge)])),
-      logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
+      %  logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
       {ok, NewEdgeOrddict, NewTestEdge, NewNodeState} = response:reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeName, OwnNodeState, OwnFragName, FindCount, InBranch, BestWT),
       main(NewNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, NewTestEdge, InBranch, FindCount);
 
@@ -77,13 +77,13 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
 
     {changeroot, Edge} ->
       logging:logMessage(OwnNodeName, io_lib:format("changeroot message received | Edge: ~p", [element(1, Edge)])),
-      logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
+      %  logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
       {ok, NewEdgeOrddict} = nodeFunction:changeRoot(OwnEdgeOrddict, OwnLevel, BestEdge),
       main(OwnNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount);
 
     {connect, Level, Edge} ->
       logging:logMessage(OwnNodeName, io_lib:format("connect message received | Level: ~p | Edge: ~p", [Level, element(1, Edge)])),
-      logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
+      %  logging:logStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
       case OwnNodeState == sleeping of
         true ->
           {ok, NewEdgeOrddict} = nodeFunction:wakeup(OwnEdgeOrddict, OwnNodeName),

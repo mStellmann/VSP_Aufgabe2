@@ -38,7 +38,7 @@ scenario2() ->
 .
 
 %% @doc
-%%  Starts the second scenario with 7 nodes (Aufgabenblatt)
+%%  Starts the second scenario with 4 nodes (Undirected Graph V4)
 scenario3() ->
   mstNode:start(node1, 3),
   mstNode:start(node2, 3),
