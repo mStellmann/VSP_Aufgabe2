@@ -26,7 +26,7 @@
 %%    Edge:           The edge this node tries to connect trough
 %%    FindCount:      TODO doc
 main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount) ->
-  logging:logPreStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
+  % logging:logPreStatus(OwnNodeState, OwnLevel, OwnFragName, OwnNodeName, BestEdge, BestWT, TestEdge, InBranch, FindCount),
   receive
     wakeup when OwnNodeState == sleeping ->
       logging:logMessage(OwnNodeName, "wakeup received"),
@@ -48,13 +48,7 @@ main(OwnNodeState, OwnLevel, OwnFragName, OwnEdgeOrddict, OwnNodeName, BestEdge,
           {ok, NewEdgeOrddict2, NewTestEdge, NewNodeState} = response:test(0, found, OwnFragName, NewEdgeOrddict, Level, FragName, Edge, TestEdge, 0, InBranch, BestWT),
           main(NewNodeState, 0, OwnFragName, NewEdgeOrddict2, OwnNodeName, BestEdge, BestWT, NewTestEdge, InBranch, 0);
         _ ->
-          %% ----- LOGGING -----
-          logging:logMessage(OwnNodeName, "----- Before Test -----"),
-          %% -------------------
           {ok, NewEdgeOrddict, NewTestEdge, NewNodeState} = response:test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge, TestEdge, FindCount, InBranch, BestWT),
-          %% ----- LOGGING -----
-          logging:logMessage(OwnNodeName, "----- After Test -----"),
-          %% -------------------
           main(NewNodeState, OwnLevel, OwnFragName, NewEdgeOrddict, OwnNodeName, BestEdge, BestWT, NewTestEdge, InBranch, FindCount)
       end;
 
