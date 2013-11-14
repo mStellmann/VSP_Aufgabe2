@@ -175,14 +175,14 @@ test(OwnLevel, OwnNodeState, OwnFragName, OwnEdgeOrddict, Level, FragName, Edge,
                              false ->
                                OwnEdgeOrddict
                            end,
-          case element(1, Edge) /= element(1, TestEdge) of
-            true ->
-              nodeUtil:sendMessageTo(OtherNodeName, {reject, SendingEdge}),
-              {ok, NewEdgeOrddict, TestEdge, OwnNodeState};
-            false ->
-              {ok, NewTestEdge, NewNodeState} = nodeFunction:test(NewEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, OwnNodeName, FindCount, InBranch, BestWT),
-              {ok, NewEdgeOrddict, NewTestEdge, NewNodeState}
-          end
+          {ok, NewTestEdge, NewNodeState} = case Edge /= TestEdge of
+                                              true ->
+                                                nodeUtil:sendMessageTo(OtherNodeName, {reject, SendingEdge}),
+                                                {ok, TestEdge, OwnNodeState};
+                                              false ->
+                                                nodeFunction:test(NewEdgeOrddict, OwnLevel, OwnNodeState, OwnFragName, OwnNodeName, FindCount, InBranch, BestWT)
+                                            end,
+          {ok, NewEdgeOrddict, NewTestEdge, NewNodeState}
       end
   end
 .

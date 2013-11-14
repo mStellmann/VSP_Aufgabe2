@@ -22,7 +22,8 @@ scenario1() ->
   mstNode:start(node2, 1),
   mstNode:start(node3, 1),
   mstNode:start(node4, 1),
-  mstNode:start(node5, 1)
+  mstNode:start(node5, 1),
+  erlang:whereis(node1) ! wakeup
 .
 
 %% @doc
@@ -34,7 +35,8 @@ scenario2() ->
   mstNode:start(node4, 2),
   mstNode:start(node5, 2),
   mstNode:start(node6, 2),
-  mstNode:start(node0, 2)
+  mstNode:start(node0, 2),
+  erlang:whereis(node0) ! wakeup
 .
 
 %% @doc
@@ -43,5 +45,6 @@ scenario3() ->
   mstNode:start(node1, 3),
   mstNode:start(node2, 3),
   mstNode:start(node3, 3),
-  mstNode:start(node0, 3)
+  mstNode:start(node0, 3),
+  erlang:whereis(node0) ! wakeup
 .
