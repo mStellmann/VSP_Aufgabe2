@@ -113,6 +113,7 @@ reject(Edge, OwnEdgeOrddict, OwnLevel, OwnNodeName, OwnNodeState, OwnFragName, F
 report(ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge) ->
   EdgeName = element(1, Edge),
   InBranchName = element(1, InBranch),
+
   case EdgeName /= InBranchName of
     true ->
       NewFindCount = FindCount - 1,
@@ -138,7 +139,7 @@ report(ReportedEdgeWeight, Edge, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCou
               case ReportedEdgeWeight == BestWT andalso BestWT == nodeUtil:infinity() of
                 true ->
                   %% in case of more information on exit: {halt, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge};
-                  {halt};
+                  nodeUtil:exitNode(element(3, Edge));
                 false ->
                   {ok, OwnNodeState, OwnEdgeOrddict, OwnLevel, FindCount, BestEdge, InBranch, BestWT, TestEdge}
               end
